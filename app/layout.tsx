@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
@@ -10,15 +11,17 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = "REDLINE — репетиторы для 4–8 классов";
   const description =
     "Индивидуальные занятия по математике, русскому языку и физике для 4–8 классов. Бесплатная диагностика, личный план и первый измеримый результат за 3 занятия.";
-  const socialImage = baseUrl ? new URL("/og.png", baseUrl).toString() : undefined;
+  const socialImage = baseUrl
+    ? new URL(`${publicBasePath}/og.png`, baseUrl).toString()
+    : undefined;
 
   return {
     metadataBase: baseUrl,
     title,
     description,
     icons: {
-      icon: "/redline-icon.png",
-      apple: "/redline-icon.png",
+      icon: `${publicBasePath}/redline-icon.png`,
+      apple: `${publicBasePath}/redline-icon.png`,
     },
     openGraph: {
       title,
@@ -49,3 +52,4 @@ export default function RootLayout({
     </html>
   );
 }
+
