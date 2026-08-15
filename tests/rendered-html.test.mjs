@@ -59,6 +59,24 @@ test("lead endpoint rejects incomplete requests before contacting the CRM", asyn
   assert.deepEqual(await response.json(), { ok: false, error: "invalid_contact" });
 });
 
+test("lead endpoint allows the GitHub Pages form origin", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request("http://localhost/api/lead", {
+      method: "OPTIONS",
+      headers: { origin: "https://redline-school.github.io" },
+    }),
+    environment,
+    executionContext,
+  );
+
+  assert.equal(response.status, 204);
+  assert.equal(
+    response.headers.get("access-control-allow-origin"),
+    "https://redline-school.github.io",
+  );
+});
+
 test("keeps the generated campaign assets and production form wiring", async () => {
   const [page, route, css] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -66,7 +84,8 @@ test("keeps the generated campaign assets and production form wiring", async () 
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /fetch\("\/api\/lead"/);
+  assert.match(page, /fetch\(leadEndpoint/);
+  assert.match(page, /redline-4-8\.pahanchic52\.chatgpt\.site\/api\/lead/);
   assert.match(page, /type="checkbox" name="consent" required/);
   assert.match(page, /можно отказаться/i);
   assert.match(page, /молодые студенты/i);
@@ -98,3 +117,4 @@ test("keeps the generated campaign assets and production form wiring", async () 
     assert.ok((await stat(asset)).size > 50_000, `${path} should be a real image asset`);
   }
 });
+
