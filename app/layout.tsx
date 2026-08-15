@@ -1,0 +1,51 @@
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import "./globals.css";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
+  const baseUrl = host ? new URL(`${protocol}://${host}`) : undefined;
+  const title = "REDLINE — репетиторы для 4–8 классов";
+  const description =
+    "Индивидуальные занятия по математике, русскому языку и физике для 4–8 классов. Бесплатная диагностика, личный план и первый измеримый результат за 3 занятия.";
+  const socialImage = baseUrl ? new URL("/og.png", baseUrl).toString() : undefined;
+
+  return {
+    metadataBase: baseUrl,
+    title,
+    description,
+    icons: {
+      icon: "/redline-icon.png",
+      apple: "/redline-icon.png",
+    },
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      locale: "ru_RU",
+      images: socialImage
+        ? [{ url: socialImage, width: 1200, height: 630, alt: title }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: socialImage ? [socialImage] : undefined,
+    },
+  };
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="ru">
+      <body>{children}</body>
+    </html>
+  );
+}

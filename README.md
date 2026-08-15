@@ -16,6 +16,10 @@ npm run dev
 npm run build
 ```
 
+Copy `.env.example` to `.env.local` and set `GOOGLE_SCRIPT_URL` to the Google
+Apps Script deployment that receives diagnostic requests. Configure the same
+variable in the production hosting environment; do not commit the real URL.
+
 This starter does not use `wrangler.jsonc`.
 
 ## Included Shape
@@ -98,4 +102,3 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
-

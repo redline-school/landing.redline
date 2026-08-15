@@ -1,0 +1,597 @@
+"use client";
+
+import Image from "next/image";
+import { FormEvent, useEffect, useRef, useState } from "react";
+
+const goals = [
+  "Повысить успеваемость",
+  "Закрыть пробелы или идти на опережение",
+  "Подготовиться к контрольной или самостоятельной",
+  "Подготовиться к олимпиаде",
+  "Подготовиться к ВПР или МЦКО",
+  "Подготовиться к переводному экзамену",
+];
+
+const subjectDetails = {
+  math: { tab: "Математика", short: "математике", label: "Математика" },
+  russian: { tab: "Русский язык", short: "русскому языку", label: "Русский язык" },
+  physics: { tab: "Физика", short: "физике", label: "Физика · 7–8 классы" },
+} as const;
+
+type SubjectKey = keyof typeof subjectDetails;
+type FormStatus = "idle" | "loading" | "success" | "error";
+
+const products = [
+  {
+    number: "01",
+    title: "Повышение успеваемости",
+    badge: "главный продукт",
+    className: "primary",
+    text: "Работаем по программе и учебнику ученика: закрываем пробелы, идём на опережение, готовимся к контрольным и самостоятельным.",
+    result: "Результат: увереннее отвечает и повышает оценки",
+  },
+  {
+    number: "02",
+    title: "Олимпиадная подготовка",
+    badge: "ежегодный трек",
+    className: "dark",
+    text: "Развиваем нестандартное мышление и готовим к школьным олимпиадам разного уровня — от первых задач до уверенного участия.",
+    result: "Результат: видит идеи, а не перебирает формулы",
+  },
+  {
+    number: "03",
+    title: "Переводные экзамены",
+    badge: "по цели ученика",
+    className: "light",
+    text: "Готовим к годовым контрольным, аттестации и поступлению в другую школу: определяем темы, сроки и собираем понятный план.",
+    result: "Результат: системная подготовка без аврала",
+  },
+  {
+    number: "04",
+    title: "ВПР / МЦКО",
+    badge: "сезонный продукт",
+    className: "seasonal",
+    text: "Точечно разбираем формат, типовые задания и слабые темы. Сейчас этот продукт доступен, но не является главным фокусом сезона.",
+    result: "Результат: знакомый формат и меньше тревоги",
+  },
+];
+
+const caseStudies = [
+  {
+    image: "/case-student-1.webp",
+    grade: "5 класс",
+    subject: "Русский язык",
+    title: "Правила знает — в работе не замечает",
+    route: "Карта повторяющихся ошибок → тренировка орфограмм → самопроверка.",
+  },
+  {
+    image: "/case-student-2.webp",
+    grade: "6 класс",
+    subject: "Математика",
+    title: "Дроби превратились в угадывание",
+    route: "Проверка базы → смысл действий → школьные задачи без подсказки.",
+  },
+  {
+    image: "/case-student-3.webp",
+    grade: "8 класс",
+    subject: "Физика",
+    title: "Формулы выучены — задача не решается",
+    route: "Явление → рисунок → величины → объяснение решения своими словами.",
+  },
+];
+
+const diagnosticStages = [
+  {
+    number: "01",
+    title: "Знакомимся",
+    text: "Будущий преподаватель узнаёт цель, школьную программу и то, где ребёнок теряется.",
+    image: "/tutor-avatar-1.webp",
+  },
+  {
+    number: "02",
+    title: "Находим точку сбоя",
+    text: "Не ставим общую оценку — определяем конкретные темы и навыки, которые мешают двигаться дальше.",
+    image: "/tutor-avatar-2.webp",
+  },
+  {
+    number: "03",
+    title: "Проводим мини-урок",
+    text: "Ребёнок пробует объяснение преподавателя и сразу понимает, комфортно ли заниматься вместе.",
+    image: "/tutor-avatar-3.webp",
+  },
+  {
+    number: "04",
+    title: "Отдаём маршрут",
+    text: "Родитель получает список пробелов, сильных сторон и план — даже если решит не продолжать.",
+    image: "/tutor-avatar-4.webp",
+  },
+];
+
+const faqs = [
+  {
+    question: "Что значит «первый результат за 3 занятия»?",
+    answer:
+      "На диагностике выбираем один конкретный измеримый результат: например, ребёнок самостоятельно приводит дроби к общему знаменателю или находит орфограмму. За три занятия разбираем опору, тренируем навык и фиксируем, что уже получается без подсказки.",
+  },
+  {
+    question: "Кто проводит диагностику?",
+    answer:
+      "Будущий преподаватель ребёнка. Вы сразу проверяете не только знания, но и контакт: подходит ли темп, общение и способ объяснения.",
+  },
+  {
+    question: "Что получает родитель после занятий?",
+    answer:
+      "Регулярные короткие отчёты: что разобрали, что уже получается, где нужна практика и какой следующий шаг запланирован. В личном кабинете видна динамика по темам.",
+  },
+  {
+    question: "Как ребёнок видит свой прогресс?",
+    answer:
+      "Вместе с преподавателем он видит освоенные темы, небольшие победы и ближайшую цель. Прогресс становится конкретным, а не сводится к общему «стал заниматься лучше».",
+  },
+  {
+    question: "Нужна ли камера?",
+    answer:
+      "Нет. Камера не обязательна. Достаточно стабильного интернета, микрофона и возможности видеть материалы преподавателя на экране.",
+  },
+  {
+    question: "Можно отказаться после диагностики?",
+    answer:
+      "Да. Диагностика бесплатна и ни к чему не обязывает. План останется у вас, даже если вы не продолжите занятия в REDLINE.",
+  },
+  {
+    question: "Можно заниматься по нашему учебнику?",
+    answer:
+      "Да. Для повышения успеваемости преподаватель работает по программе и учебнику ученика: закрывает пробелы или помогает идти на опережение.",
+  },
+  {
+    question: "Как общаться с преподавателем между занятиями?",
+    answer:
+      "Через приложение и сайт REDLINE: можно задать вопрос, отправить задание или получить дополнительный материал. Организационные вопросы помогает решить поддержка.",
+  },
+  {
+    question: "Сколько стоит занятие?",
+    answer:
+      "Индивидуальное онлайн-занятие длится 60 минут и стоит от 900 ₽. Для регулярных занятий есть пакеты со скидкой — подходящий формат предложим после диагностики.",
+  },
+];
+
+export default function Home() {
+  const [activeSubject, setActiveSubject] = useState<SubjectKey>("math");
+  const [formStep, setFormStep] = useState<1 | 2>(1);
+  const [formStatus, setFormStatus] = useState<FormStatus>("idle");
+  const [formMessage, setFormMessage] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const subject = subjectDetails[activeSubject];
+
+  useEffect(() => {
+    document.documentElement.classList.add("reveal-ready");
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -48px" },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("reveal-ready");
+    };
+  }, []);
+
+  function advanceForm() {
+    const form = formRef.current;
+    if (!form) return;
+
+    const controls = ["grade", "subject", "goal"].map((name) =>
+      form.elements.namedItem(name),
+    ) as Array<HTMLSelectElement | null>;
+
+    const valid = controls.every((control) => control?.reportValidity());
+    if (valid) {
+      setFormMessage("");
+      setFormStatus("idle");
+      setFormStep(2);
+    }
+  }
+
+  async function submitLead(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (formStatus === "loading") return;
+
+    if (formStep === 1) {
+      advanceForm();
+      return;
+    }
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const phone = String(data.get("phone") || "").trim();
+    const digits = phone.replace(/\D/g, "");
+
+    if (digits.length < 10 || digits.length > 11) {
+      setFormStatus("error");
+      setFormMessage("Проверьте номер телефона — нужно 10–11 цифр.");
+      return;
+    }
+
+    setFormStatus("loading");
+    setFormMessage("");
+
+    const campaignParams = new URLSearchParams(window.location.search);
+    const campaign: Record<string, string> = {};
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "yclid"].forEach(
+      (key) => {
+        const value = campaignParams.get(key);
+        if (value) campaign[key] = value;
+      },
+    );
+
+    try {
+      const response = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          parent_name: String(data.get("parent_name") || "").trim(),
+          phone,
+          contact_method: String(data.get("contact_method") || ""),
+          grade: String(data.get("grade") || ""),
+          subject: String(data.get("subject") || ""),
+          goal: String(data.get("goal") || ""),
+          consent: data.get("consent") === "on",
+          source: "redline_landing_4_8",
+          page_url: window.location.href,
+          ...campaign,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({ ok: false }));
+      if (!response.ok || !result.ok) throw new Error("lead_not_confirmed");
+
+      setFormStatus("success");
+      setFormMessage("Заявка отправлена. Свяжемся с вами и подберём время диагностики.");
+      form.reset();
+      setFormStep(1);
+    } catch {
+      setFormStatus("error");
+      setFormMessage("Не получилось отправить заявку. Попробуйте ещё раз или напишите в Telegram.");
+    }
+  }
+
+  return (
+    <>
+      <a className="skip-link" href="#main-content">Перейти к содержанию</a>
+
+      <header className="site-header">
+        <div className="container header-inner">
+          <a className="brand" href="#top" aria-label="REDLINE — на главную">
+            <Image src="/redline-logo-red.png" alt="" width={62} height={44} priority />
+            <span><strong>REDLINE</strong><small>репетиторы · 4–8 классы</small></span>
+          </a>
+          <nav className="main-nav" aria-label="Основная навигация">
+            <a href="#programs">Продукты</a>
+            <a href="#first-result">3 занятия</a>
+            <a href="#progress">Прогресс</a>
+            <a href="#tutors">Репетиторы</a>
+            <a href="#price">Стоимость</a>
+          </nav>
+          <a className="button button-small" href="#lead-form">Бесплатная диагностика</a>
+        </div>
+      </header>
+
+      <main id="main-content">
+        <section className="hero" id="top">
+          <div className="hero-orbit orbit-one" aria-hidden="true" />
+          <div className="hero-orbit orbit-two" aria-hidden="true" />
+          <div className="container hero-stage">
+            <div className="hero-copy" data-reveal>
+              <div className="hero-proof">
+                <div className="mini-avatars" aria-hidden="true">
+                  {[1, 2, 3].map((item) => (
+                    <Image key={item} src={`/tutor-avatar-${item}.webp`} alt="" width={42} height={42} />
+                  ))}
+                </div>
+                <span>молодые репетиторы-студенты</span>
+              </div>
+              <h1>
+                Индивидуальные занятия с репетитором для школьников{" "}
+                <span className="marker marker-yellow">4–8 классов</span>.
+                <em>Математика, русский язык и физика</em>
+              </h1>
+              <p className="hero-subtitle">
+                <strong>Бесплатная диагностика за 30 минут</strong> + индивидуальный план
+              </p>
+              <div className="hero-actions">
+                <a className="button button-light button-large" href="#lead-form">
+                  Записаться бесплатно <span aria-hidden="true">→</span>
+                </a>
+                <span>камера не нужна · можно отказаться</span>
+              </div>
+              <div className="three-lesson-promise">
+                <b>3</b>
+                <span><strong>занятия до первого измеримого результата</strong><small>Конкретную цель зафиксируем на диагностике</small></span>
+              </div>
+            </div>
+
+            <div className="hero-people" data-reveal>
+              <div className="hero-sun" aria-hidden="true">+</div>
+              <Image
+                className="hero-tutors"
+                src="/hero-tutors-cutout.png"
+                alt="Молодые репетиторы REDLINE"
+                width={900}
+                height={760}
+                priority
+              />
+              <Image
+                className="hero-children"
+                src="/hero-children.webp"
+                alt="Школьники REDLINE с учебными материалами"
+                width={1024}
+                height={1536}
+                priority
+              />
+              <div className="floating-note note-top">
+                <span>После занятия</span>
+                <strong>Родитель видит, что получилось</strong>
+              </div>
+              <div className="floating-note note-bottom">
+                <i aria-hidden="true">✓</i>
+                <span><strong>Первая победа</strong>за 3 занятия</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="container hero-form-wrap" data-reveal>
+            <div className="lead-card" id="lead-form">
+              <div className="lead-card-intro">
+                <span>Бесплатно · 30 минут</span>
+                <h2>Найдём пробелы и познакомим с будущим преподавателем</h2>
+                <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}>
+                  <i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b>
+                </div>
+              </div>
+
+              <form ref={formRef} className="lead-form" onSubmit={submitLead}>
+                <fieldset className="form-step" hidden={formStep !== 1}>
+                  <legend>Расскажите о задаче</legend>
+                  <div className="form-grid">
+                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[4,5,6,7,8].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
+                    <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
+                    <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
+                    <button className="button submit-button" type="button" onClick={advanceForm}>Продолжить →</button>
+                  </div>
+                </fieldset>
+
+                <fieldset className="form-step" hidden={formStep !== 2}>
+                  <legend>Куда отправить подтверждение</legend>
+                  <div className="form-grid contact-grid">
+                    <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
+                    <label><span>Телефон</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
+                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>Telegram по номеру телефона</option></select></label>
+                    <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Записаться бесплатно"}</button>
+                  </div>
+                  <div className="form-meta">
+                    <button className="back-button" type="button" onClick={() => setFormStep(1)}>← Назад</button>
+                    <label className="consent-field"><input type="checkbox" name="consent" required /><span>Согласен(а) на обработку данных по <a href="https://redline-school.github.io/RedLine/index.html#privacy" target="_blank" rel="noreferrer">политике</a></span></label>
+                  </div>
+                </fieldset>
+
+                {formMessage && (
+                  <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>
+                    {formMessage}{formStatus === "error" && <> <a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Написать в Telegram</a></>}
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section className="signal-strip" aria-label="Ключевые преимущества">
+          <div className="container signal-grid">
+            <div><strong>1 на 1</strong><span>всё внимание ребёнку</span></div>
+            <div><strong>3 занятия</strong><span>до первого результата</span></div>
+            <div><strong>После каждого</strong><span>отчёт родителю</span></div>
+            <div><strong>Сайт + приложение</strong><span>всё общение в одном месте</span></div>
+          </div>
+        </section>
+
+        <section className="section products-section" id="programs">
+          <div className="container products-container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">Не один курс на все случаи</p><h2>Выбираем продукт под <span className="marker marker-red">родительский запрос</span></h2></div>
+              <p>Каждый формат доступен по математике, русскому языку и физике. Программа собирается вокруг учебника, цели и срока.</p>
+            </div>
+            <div className="subject-switch" role="group" aria-label="Выберите предмет">
+              {(Object.keys(subjectDetails) as SubjectKey[]).map((key) => (
+                <button type="button" key={key} className={activeSubject === key ? "active" : ""} aria-pressed={activeSubject === key} onClick={() => setActiveSubject(key)}>{subjectDetails[key].tab}</button>
+              ))}
+            </div>
+            <div className="subject-caption" key={activeSubject}>Сейчас показываем продукты по <strong>{subject.short}</strong></div>
+            <div className="product-grid subject-enter" key={`${activeSubject}-products`}>
+              {products.map((product) => (
+                <article className={`product-card ${product.className}`} key={product.title}>
+                  <div className="product-top"><span>{product.number}</span><i>{product.badge}</i></div>
+                  <h3>{product.title}</h3>
+                  <p>{product.text}</p>
+                  <strong>{product.result}</strong>
+                  <small>{subject.label}</small>
+                  {product.className === "primary" && (
+                    <Image className="product-people" src="/product-tutor-student.webp" alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section result-section" id="first-result">
+          <div className="container result-shell" data-reveal>
+            <div className="result-intro">
+              <p className="section-kicker light">Не ждём четверть, чтобы заметить сдвиг</p>
+              <h2>Приведём к <span className="marker marker-yellow">первому результату</span> за 3 занятия</h2>
+              <p>Выбираем одну понятную цель и показываем движение по ней ребёнку и родителю.</p>
+              <a className="button button-light" href="#lead-form">Выбрать первую цель →</a>
+            </div>
+            <div className="result-steps">
+              <article><Image src="/tutor-avatar-1.webp" alt="Молодой преподаватель математики" width={132} height={148} /><span>Занятие 1</span><h3>Находим опору</h3><p>Разбираемся, где именно ломается логика, и объясняем базовый шаг.</p></article>
+              <article><Image src="/tutor-avatar-2.webp" alt="Молодой преподаватель русского языка" width={132} height={148} /><span>Занятие 2</span><h3>Тренируем навык</h3><p>Пробуем несколько заданий и учим ребёнка замечать нужный способ.</p></article>
+              <article><Image src="/tutor-avatar-3.webp" alt="Молодой преподаватель физики" width={132} height={148} /><span>Занятие 3</span><h3>Фиксируем результат</h3><p>Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section className="section cases-section" id="cases">
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">С чего может начаться маршрут</p><h2>Три знакомые ситуации — <span className="marker marker-red">три разных пути</span></h2></div>
+              <p>Это типовые сценарии, не вымышленные отзывы. Точный маршрут появится после диагностики вашего ребёнка.</p>
+            </div>
+            <div className="case-grid">
+              {caseStudies.map((item, index) => (
+                <article className="case-card" key={item.title}>
+                  <div className="case-photo"><Image src={item.image} alt={`Ученик: ${item.grade}, ${item.subject}`} fill sizes="(max-width: 760px) 100vw, 33vw" /></div>
+                  <div className="case-content">
+                    <div className="case-tags"><span>{item.grade}</span><span>{item.subject}</span></div>
+                    <h3>{item.title}</h3>
+                    <p>{item.route}</p>
+                    <a href="#lead-form">Разобрать нашу ситуацию →</a>
+                  </div>
+                  <b className="case-number">0{index + 1}</b>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section diagnostics-section" id="diagnostics">
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row light-heading">
+              <div><p className="section-kicker light">30 минут · бесплатно</p><h2>Диагностика проходит с <span className="marker marker-yellow">будущим преподавателем</span></h2></div>
+              <p>Камера не нужна. После встречи можно отказаться — понимание пробелов и маршрут останутся у вас.</p>
+            </div>
+            <div className="diagnostic-grid">
+              {diagnosticStages.map((stage) => (
+                <article key={stage.number}>
+                  <div className="diagnostic-person"><Image src={stage.image} alt="Молодой преподаватель REDLINE" fill sizes="180px" /></div>
+                  <span>{stage.number}</span><h3>{stage.title}</h3><p>{stage.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section progress-section" id="progress">
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">Прогресс нельзя прятать в голове преподавателя</p><h2>Родитель и ребёнок <span className="marker marker-red">видят движение</span></h2></div>
+              <p>Освоенные темы, регулярность, домашние задания, сильные стороны и зоны роста собраны в понятном личном кабинете.</p>
+            </div>
+            <div className="dashboard-frame">
+              <Image src="/progress-dashboard.png" alt="Пример кабинета с динамикой прогресса ученика" width={1536} height={1024} />
+              <div className="progress-sticker"><strong>+36%</strong><span>пример динамики<br />за 8 занятий</span></div>
+            </div>
+            <div className="progress-benefits">
+              <article><span>Родителю</span><h3>Понятно, за что он платит</h3><p>Есть темы, цифры, рекомендации и следующий шаг — без необходимости контролировать каждый урок.</p></article>
+              <article><span>Ребёнку</span><h3>Видно, что усилия работают</h3><p>Небольшие победы становятся заметными и поддерживают мотивацию лучше общей оценки.</p></article>
+              <article><span>Преподавателю</span><h3>Легче держать маршрут</h3><p>Видна динамика навыков, поэтому следующее занятие начинается с нужной точки.</p></article>
+            </div>
+          </div>
+        </section>
+
+        <section className="section reports-section">
+          <div className="container reports-shell" data-reveal>
+            <div className="report-visual">
+              <Image src="/parent-report-chat.png" alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
+              <div className="report-avatar"><Image src="/tutor-avatar-4.webp" alt="Преподаватель" width={68} height={68} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
+            </div>
+            <div className="report-copy">
+              <p className="section-kicker">Постоянная обратная связь</p>
+              <h2>После занятия родитель не спрашивает: <span className="marker marker-red">«Ну как?»</span></h2>
+              <p>Преподаватель регулярно пишет, что успели, что получилось и над чем работать дальше. Родитель остаётся в курсе, не превращаясь в контролёра.</p>
+              <ul><li>короткий итог после занятия;</li><li>конкретные сложности без общих фраз;</li><li>следующая тема и рекомендации;</li><li>видимый прогресс в личном кабинете.</li></ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="section communication-section" id="communication">
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">Не теряем сообщения в разных мессенджерах</p><h2>Приложение и сайт — <span className="marker marker-red">одно место для общения</span></h2></div>
+              <p>Ученик отправляет задание и получает подсказку, родитель видит историю занятий, а поддержка остаётся рядом по организационным вопросам.</p>
+            </div>
+            <div className="communication-grid">
+              <div className="phone-stage">
+                <div className="phone-copy"><span>В приложении</span><h3>Свободное общение с репетитором</h3><p>Вопрос, фотография задания, голосовое объяснение — всё остаётся в диалоге.</p></div>
+                <div className="phone-frame"><Image src="/app-tutor-chat.png" alt="Диалог ученика с репетитором в приложении REDLINE" width={988} height={2048} /></div>
+              </div>
+              <div className="site-stage">
+                <div><span>На сайте</span><h3>Все чаты и история занятий под рукой</h3><p>Репетитор, поддержка и дополнительные материалы не теряются.</p></div>
+                <Image src="/website-chats.png" alt="Чаты с поддержкой и преподавателями на сайте REDLINE" width={868} height={365} />
+                <div className="site-features"><b>✓ преподаватель рядом</b><b>✓ материалы в истории</b><b>✓ поддержка помогает</b></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section tutor-section" id="tutors">
+          <div className="container tutor-shell" data-reveal>
+            <div className="tutor-copy">
+              <p className="section-kicker">Молодая команда · живой контакт</p>
+              <h2>Репетиторы-студенты говорят с ребёнком <span className="marker marker-red">на одном языке</span></h2>
+              <p>Наши преподаватели — молодые студенты, которые сами недавно прошли школьную программу. Они помнят сложные места и объясняют без дистанции и стыда за ошибку.</p>
+              <div className="tutor-points"><span>спокойно объясняют</span><span>работают по программе 4–8 классов</span><span>слышат ребёнка</span></div>
+              <a className="button" href="#lead-form">Познакомиться на диагностике →</a>
+            </div>
+            <div className="team-photo"><Image src="/young-tutors-v2.webp" alt="Команда молодых репетиторов-студентов" fill sizes="(max-width: 900px) 100vw, 1200px" /><div>Будущего преподавателя согласуем до первого платного занятия</div></div>
+            <p className="image-disclaimer">Изображения людей созданы для визуализации типажей команды; они не являются карточками конкретных сотрудников.</p>
+          </div>
+        </section>
+
+        <section className="section price-section" id="price">
+          <div className="container price-shell" data-reveal>
+            <div className="price-main"><span>Индивидуально · 60 минут</span><h2>от 900 ₽</h2><p>за одно онлайн-занятие</p><div className="price-note"><strong>Есть пакеты со скидкой</strong><span>Подберём после диагностики без лишних тарифов</span></div></div>
+            <div className="price-copy"><p className="section-kicker light">Без перегруженной тарифной таблицы</p><h3>Сначала определяем цель — потом предлагаем формат</h3><p>Для регулярных занятий есть пакеты со скидкой. После диагностики предложим только подходящий вариант и объясним условия до оплаты.</p><ul><li>план под учебник и цель;</li><li>регулярные отчёты родителю;</li><li>прогресс в личном кабинете;</li><li>замена преподавателя, если не совпали.</li></ul><a className="button button-light" href="#lead-form">Узнать подходящий формат →</a></div>
+          </div>
+        </section>
+
+        <section className="section faq-section" id="faq">
+          <div className="container faq-shell" data-reveal>
+            <div className="faq-intro"><p className="section-kicker">Коротко о важном</p><h2>Вопросы родителей</h2><p>Не нашли свой вопрос? Напишите напрямую.</p><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Задать вопрос в Telegram ↗</a></div>
+            <div className="faq-list">{faqs.map((faq, index) => <details key={faq.question} open={index === 0}><summary><span>{faq.question}</span><i aria-hidden="true">+</i></summary><p>{faq.answer}</p></details>)}</div>
+          </div>
+        </section>
+
+        <section className="final-cta">
+          <div className="container final-cta-inner" data-reveal>
+            <div><p className="section-kicker light">Первая понятная цель</p><h2>Начните с диагностики — <span className="marker marker-yellow">увидьте результат за 3 занятия</span></h2></div>
+            <div><p>За 30 минут узнаете пробелы, познакомитесь с будущим преподавателем и получите индивидуальный план. Покупать занятия сразу не нужно.</p><a className="button button-light button-large" href="#lead-form">Записаться бесплатно →</a></div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="container footer-grid">
+          <div className="footer-brand"><strong>REDLINE</strong><p>Индивидуальные занятия для школьников 4–8 классов.</p></div>
+          <div><span>Связаться</span><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
+          <div><span>Документы</span><a href="https://redline-school.github.io/RedLine/index.html#offer" target="_blank" rel="noreferrer">Оферта ↗</a><a href="https://redline-school.github.io/RedLine/index.html#privacy" target="_blank" rel="noreferrer">Конфиденциальность ↗</a></div>
+          <div><span>Навигация</span><a href="#programs">Продукты</a><a href="#progress">Прогресс</a><a href="#price">Стоимость</a></div>
+        </div>
+        <div className="container footer-bottom"><span>© 2026 REDLINE</span><span>Онлайн · Россия</span></div>
+      </footer>
+
+      <a className="mobile-sticky" href="#lead-form">Бесплатная диагностика <span>→</span></a>
+    </>
+  );
+}
