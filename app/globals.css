@@ -203,6 +203,12 @@ summary:focus-visible {
   font-size: 11px;
 }
 
+.header-cta {
+  min-height: 52px;
+  padding-inline: 23px;
+  font-size: 12px;
+}
+
 .button-large {
   min-height: 58px;
   padding-inline: 30px;
@@ -302,7 +308,8 @@ summary:focus-visible {
   display: flex;
 }
 
-.mini-avatars img {
+.mini-avatars img,
+.mini-avatars i {
   width: 38px;
   height: 38px;
   margin-right: -10px;
@@ -310,6 +317,17 @@ summary:focus-visible {
   border-radius: 50%;
   object-fit: cover;
 }
+
+.tutor-sprite {
+  display: block;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+}
+
+.tutor-1 { background-position: 0 50%; }
+.tutor-2 { background-position: 33.333% 50%; }
+.tutor-3 { background-position: 66.666% 50%; }
+.tutor-4 { background-position: 100% 50%; }
 
 .hero h1 {
   max-width: 785px;
@@ -454,6 +472,18 @@ summary:focus-visible {
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 26px 30px rgba(89, 0, 7, 0.26));
+}
+
+.hero-community {
+  position: absolute;
+  z-index: 4;
+  right: -32px;
+  bottom: -38px;
+  width: 560px;
+  height: 690px;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 26px 30px rgba(89, 0, 7, 0.24));
 }
 
 .hero-children {
@@ -899,8 +929,9 @@ summary:focus-visible {
 
 .product-card.dark,
 .product-card.light,
+.product-card.exam,
 .product-card.seasonal {
-  grid-column: span 2;
+  grid-column: span 3;
 }
 
 .product-card:hover {
@@ -941,6 +972,36 @@ summary:focus-visible {
 .product-card.seasonal {
   background: #ede8e5;
   color: #625a58;
+}
+
+.product-card.exam {
+  border-color: rgba(235, 30, 47, 0.18);
+  background: linear-gradient(145deg, #fff 0%, #fff 67%, #fff0ed 100%);
+}
+
+.diagnosis-promo {
+  margin-top: 18px;
+  padding: 25px 28px;
+  border-radius: 22px;
+  display: grid;
+  grid-template-columns: 0.6fr 1.1fr auto;
+  align-items: center;
+  gap: 22px;
+  background: var(--white);
+  box-shadow: 0 15px 42px rgba(64, 19, 22, 0.09);
+}
+
+.diagnosis-promo > span {
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diagnosis-promo > strong {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .product-top {
@@ -1095,7 +1156,8 @@ summary:focus-visible {
   background: rgba(119, 0, 12, 0.43);
 }
 
-.result-steps img {
+.result-steps img,
+.step-portrait {
   width: 100%;
   height: 148px;
   border: 3px solid rgba(255, 255, 255, 0.84);
@@ -1157,7 +1219,13 @@ summary:focus-visible {
   height: 310px;
   overflow: hidden;
   background: #eee;
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
 }
+
+.case-student-1 { background-position: 0 50%; }
+.case-student-2 { background-position: 50% 50%; }
+.case-student-3 { background-position: 100% 50%; }
 
 .case-photo img {
   object-fit: cover;
@@ -1313,6 +1381,24 @@ summary:focus-visible {
   line-height: 1.58;
 }
 
+.diagnostics-action {
+  position: relative;
+  z-index: 2;
+  margin-top: 22px;
+  padding: 18px 20px 18px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.diagnostics-action strong {
+  font-size: 15px;
+}
+
 .progress-section {
   background: var(--white);
 }
@@ -1437,7 +1523,8 @@ summary:focus-visible {
   box-shadow: var(--shadow);
 }
 
-.report-avatar img {
+.report-avatar img,
+.report-avatar i {
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -1655,7 +1742,23 @@ summary:focus-visible {
   object-position: center;
 }
 
-.team-photo > div {
+.team-portrait-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3px;
+  background: var(--white);
+}
+
+.team-portrait-grid i {
+  width: 100%;
+  min-height: 0;
+  background-size: 400% 100%;
+}
+
+.team-photo > .team-photo-note {
   position: absolute;
   right: 18px;
   bottom: 18px;
@@ -1675,6 +1778,131 @@ summary:focus-visible {
   color: #8d8582;
   font-size: 8px;
   line-height: 1.45;
+}
+
+.reviews-section {
+  overflow: hidden;
+  background: var(--red-pale);
+}
+
+.review-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.review-controls button {
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.review-controls button:hover {
+  transform: translateY(-2px);
+  background: var(--red);
+  color: var(--white);
+}
+
+.reviews-track {
+  margin-top: 46px;
+  padding: 3px 3px 22px;
+  overflow-x: auto;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(320px, 0.36fr);
+  gap: 15px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--red) transparent;
+}
+
+.review-card {
+  min-height: 330px;
+  padding: 24px;
+  border: 1px solid rgba(23, 20, 20, 0.08);
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 17px 15px;
+  background: var(--white);
+  box-shadow: 0 12px 34px rgba(64, 19, 22, 0.08);
+  scroll-snap-align: start;
+}
+
+.review-avatar {
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--red-soft);
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-size: 500% 200%;
+}
+
+.review-avatar-1 { background-position: 0 0; }
+.review-avatar-2 { background-position: 25% 0; }
+.review-avatar-3 { background-position: 50% 0; }
+.review-avatar-4 { background-position: 75% 0; }
+.review-avatar-5 { background-position: 100% 0; }
+.review-avatar-6 { background-position: 0 100%; }
+.review-avatar-7 { background-position: 25% 100%; }
+.review-avatar-8 { background-position: 50% 100%; }
+.review-avatar-9 { background-position: 75% 100%; }
+.review-avatar-10 { background-position: 100% 100%; }
+
+.review-card > div:nth-child(2) {
+  align-self: center;
+  display: grid;
+  gap: 5px;
+}
+
+.review-card strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.review-card span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.review-card p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #443d3d;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.review-card > b {
+  grid-column: 1 / -1;
+  color: var(--red);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+
+.reviews-bottom {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.reviews-bottom p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.55;
 }
 
 .price-section {
@@ -2022,6 +2250,11 @@ summary:focus-visible {
     width: 320px;
   }
 
+  .hero-community {
+    right: -25px;
+    width: 520px;
+  }
+
   .lead-card {
     grid-template-columns: 0.64fr 1.36fr;
     padding: 30px;
@@ -2120,6 +2353,13 @@ summary:focus-visible {
     height: 460px;
   }
 
+  .hero-community {
+    right: 5%;
+    bottom: -28px;
+    width: min(620px, 84vw);
+    height: 560px;
+  }
+
   .hero-sun {
     right: 60px;
   }
@@ -2202,6 +2442,7 @@ summary:focus-visible {
   .product-card.primary,
   .product-card.dark,
   .product-card.light,
+  .product-card.exam,
   .product-card.seasonal {
     grid-column: 1;
   }
@@ -2297,6 +2538,14 @@ summary:focus-visible {
   .footer-grid > div:last-child {
     display: none;
   }
+
+  .diagnosis-promo {
+    grid-template-columns: 1fr auto;
+  }
+
+  .diagnosis-promo > span {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 620px) {
@@ -2309,7 +2558,7 @@ summary:focus-visible {
   }
 
   body {
-    padding-bottom: 72px;
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
 
   .container {
@@ -2317,9 +2566,12 @@ summary:focus-visible {
   }
 
   .header-inner > .button {
-    min-height: 38px;
-    padding-inline: 12px;
-    font-size: 9px;
+    min-height: 44px;
+    max-width: 190px;
+    padding-inline: 14px;
+    font-size: 10px;
+    line-height: 1.15;
+    text-align: center;
   }
 
   .brand img {
@@ -2332,7 +2584,7 @@ summary:focus-visible {
   }
 
   .hero {
-    padding-top: 33px;
+    padding-top: 28px;
   }
 
   .hero-proof {
@@ -2340,8 +2592,8 @@ summary:focus-visible {
   }
 
   .hero h1 {
-    font-size: clamp(39px, 12.4vw, 55px);
-    line-height: 0.98;
+    font-size: clamp(34px, 10.8vw, 46px);
+    line-height: 1.01;
   }
 
   .hero h1 em {
@@ -2367,6 +2619,8 @@ summary:focus-visible {
 
   .hero-actions .button {
     width: 100%;
+    min-height: 62px;
+    font-size: 15px;
   }
 
   .hero-actions > span {
@@ -2379,7 +2633,7 @@ summary:focus-visible {
   }
 
   .hero-people {
-    min-height: 430px;
+    min-height: 390px;
   }
 
   .hero-tutors {
@@ -2394,6 +2648,14 @@ summary:focus-visible {
     bottom: 2px;
     width: 205px;
     height: 325px;
+  }
+
+  .hero-community {
+    right: 50%;
+    bottom: -28px;
+    width: 390px;
+    height: 430px;
+    transform: translateX(50%);
   }
 
   .hero-sun {
@@ -2438,6 +2700,12 @@ summary:focus-visible {
     border-radius: 22px;
   }
 
+  .lead-form select,
+  .lead-form input,
+  .lead-form .submit-button {
+    min-height: 54px;
+  }
+
   .lead-card-intro h2 {
     font-size: 26px;
   }
@@ -2476,7 +2744,7 @@ summary:focus-visible {
   }
 
   .section {
-    padding: 78px 0;
+    padding: 64px 0;
   }
 
   .section-heading h2,
@@ -2485,7 +2753,7 @@ summary:focus-visible {
   .tutor-copy h2,
   .faq-intro h2,
   .final-cta h2 {
-    font-size: 39px;
+    font-size: 34px;
   }
 
   .heading-row > p,
@@ -2507,21 +2775,41 @@ summary:focus-visible {
     padding-inline: 16px;
   }
 
-  .product-card {
-    min-height: 330px;
+  .product-grid {
+    width: calc(100vw - 12px);
+    margin-right: -12px;
+    overflow-x: auto;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(84vw, 360px);
+    grid-template-columns: none;
+    padding: 3px 12px 18px 1px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .product-card,
+  .product-card.primary,
+  .product-card.dark,
+  .product-card.light,
+  .product-card.exam,
+  .product-card.seasonal {
+    grid-column: auto;
+    min-height: 390px;
     padding: 25px;
+    scroll-snap-align: start;
   }
 
   .product-card.primary {
-    min-height: 630px;
-    padding: 25px 25px 315px;
+    min-height: 560px;
+    padding: 25px 25px 280px;
   }
 
   .product-people {
-    right: -54px;
-    bottom: -105px;
-    width: 385px;
-    height: 485px;
+    right: -32px;
+    bottom: -72px;
+    width: 340px;
+    height: 430px;
   }
 
   .product-card h3 {
@@ -2530,7 +2818,24 @@ summary:focus-visible {
   }
 
   .product-card > strong {
-    max-width: 70%;
+    max-width: 90%;
+  }
+
+  .diagnosis-promo {
+    padding: 22px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .diagnosis-promo > span {
+    grid-column: auto;
+  }
+
+  .diagnosis-promo .button {
+    width: 100%;
+    min-height: 60px;
+    margin-top: 5px;
+    text-align: center;
   }
 
   .result-shell {
@@ -2551,6 +2856,23 @@ summary:focus-visible {
     display: block;
   }
 
+  .case-grid {
+    width: calc(100vw - 12px);
+    margin-right: -12px;
+    overflow-x: auto;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(84vw, 360px);
+    grid-template-columns: none;
+    padding: 3px 12px 18px 1px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .case-card {
+    scroll-snap-align: start;
+  }
+
   .case-photo {
     height: 330px;
     min-height: 0;
@@ -2567,6 +2889,17 @@ summary:focus-visible {
     column-gap: 17px;
   }
 
+  .diagnostics-action {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .diagnostics-action .button {
+    width: 100%;
+    min-height: 60px;
+  }
+
   .diagnostic-person {
     grid-row: 1 / 4;
     height: 155px;
@@ -2581,9 +2914,12 @@ summary:focus-visible {
     margin-top: 36px;
     padding: 7px;
     border-radius: 18px;
+    overflow-x: auto;
   }
 
   .dashboard-frame > img {
+    width: 760px;
+    max-width: none;
     border-radius: 12px;
   }
 
@@ -2642,11 +2978,45 @@ summary:focus-visible {
     border-radius: 23px;
   }
 
-  .team-photo > div {
+  .team-photo > .team-photo-note {
     right: 10px;
     bottom: 10px;
     left: 10px;
     max-width: none;
+  }
+
+  .team-portrait-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .review-controls {
+    justify-content: flex-start;
+  }
+
+  .review-controls button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .reviews-track {
+    width: calc(100vw - 12px);
+    margin-right: -12px;
+    grid-auto-columns: min(84vw, 345px);
+    padding-right: 12px;
+  }
+
+  .review-card {
+    min-height: 345px;
+  }
+
+  .reviews-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reviews-bottom .button {
+    width: 100%;
+    min-height: 60px;
   }
 
   .price-main,
@@ -2680,9 +3050,9 @@ summary:focus-visible {
     position: fixed;
     z-index: 60;
     right: 10px;
-    bottom: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
     left: 10px;
-    min-height: 54px;
+    min-height: 62px;
     padding: 0 18px;
     border-radius: 14px;
     display: flex;
@@ -2690,7 +3060,7 @@ summary:focus-visible {
     justify-content: space-between;
     background: var(--red);
     color: var(--white);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 900;
     box-shadow: 0 15px 35px rgba(113, 0, 10, 0.3);
   }

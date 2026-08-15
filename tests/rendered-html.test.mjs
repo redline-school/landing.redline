@@ -32,11 +32,12 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>REDLINE — репетиторы для 4–8 классов<\/title>/i);
+  assert.match(html, /<title>REDLINE<\/title>/i);
   assert.match(html, /Индивидуальные занятия с репетитором/);
+  assert.match(html, /1–9 классов/);
   assert.match(html, /Найдём пробелы/);
   assert.match(html, /от 900 ₽/i);
-  assert.match(html, /young-tutors-v2\.webp/);
+  assert.match(html, /tutor-portraits-v3\.png/);
   assert.match(html, /первого измеримого результата/i);
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
   assert.match(html, /камера не нужна/i);
@@ -90,6 +91,8 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(page, /можно отказаться/i);
   assert.match(page, /молодые студенты/i);
   assert.match(page, /Олимпиадная подготовка/i);
+  assert.match(page, /Подготовка к ОГЭ/i);
+  assert.match(page, /review-parents-v3\.png/);
   assert.match(page, /app-tutor-chat\.png/);
   assert.match(page, /progress-dashboard\.png/);
   assert.match(route, /GOOGLE_SCRIPT_URL/);
@@ -98,23 +101,20 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(css, /@media \(max-width: 620px\)/);
 
   for (const path of [
-    "../public/hero-lesson-v2.webp",
-    "../public/hero-tutors-cutout.png",
-    "../public/hero-children.webp",
-    "../public/product-tutor-student.webp",
-    "../public/tutor-avatar-1.webp",
-    "../public/tutor-avatar-2.webp",
-    "../public/tutor-avatar-3.webp",
-    "../public/tutor-avatar-4.webp",
-    "../public/case-students-v2.webp",
-    "../public/young-tutors-v2.webp",
+    "../public/hero-community-v3.png",
+    "../public/product-pair-v3.png",
+    "../public/tutor-portraits-v3.png",
+    "../public/case-students-v3.png",
+    "../public/review-parents-v3.png",
     "../public/progress-dashboard.png",
     "../public/app-tutor-chat.png",
-    "../public/og.png",
+    "../public/og-v2.png",
   ]) {
     const asset = new URL(path, import.meta.url);
     await access(asset);
     assert.ok((await stat(asset)).size > 50_000, `${path} should be a real image asset`);
   }
+
+  await access(new URL("../public/redline-logo-user.png", import.meta.url));
 });
 

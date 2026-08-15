@@ -11,6 +11,7 @@ const goals = [
   "Закрыть пробелы или идти на опережение",
   "Подготовиться к контрольной или самостоятельной",
   "Подготовиться к олимпиаде",
+  "Подготовиться к ОГЭ",
   "Подготовиться к ВПР или МЦКО",
   "Подготовиться к переводному экзамену",
 ];
@@ -18,7 +19,7 @@ const goals = [
 const subjectDetails = {
   math: { tab: "Математика", short: "математике", label: "Математика" },
   russian: { tab: "Русский язык", short: "русскому языку", label: "Русский язык" },
-  physics: { tab: "Физика", short: "физике", label: "Физика · 7–8 классы" },
+  physics: { tab: "Физика", short: "физике", label: "Физика · 7–9 классы" },
 } as const;
 
 type SubjectKey = keyof typeof subjectDetails;
@@ -51,6 +52,14 @@ const products = [
   },
   {
     number: "04",
+    title: "Подготовка к ОГЭ",
+    badge: "9 класс",
+    className: "exam",
+    text: "Выстраиваем подготовку от диагностики тем до пробников: закрываем пробелы, разбираем формат и учимся распределять время.",
+    result: "Результат: понятный план и стабильнее баллы на пробниках",
+  },
+  {
+    number: "05",
     title: "ВПР / МЦКО",
     badge: "сезонный продукт",
     className: "seasonal",
@@ -61,21 +70,21 @@ const products = [
 
 const caseStudies = [
   {
-    image: assetPath("/case-student-1.webp"),
+    photoIndex: 1,
     grade: "5 класс",
     subject: "Русский язык",
     title: "Правила знает — в работе не замечает",
     route: "Карта повторяющихся ошибок → тренировка орфограмм → самопроверка.",
   },
   {
-    image: assetPath("/case-student-2.webp"),
+    photoIndex: 2,
     grade: "6 класс",
     subject: "Математика",
     title: "Дроби превратились в угадывание",
     route: "Проверка базы → смысл действий → школьные задачи без подсказки.",
   },
   {
-    image: assetPath("/case-student-3.webp"),
+    photoIndex: 3,
     grade: "8 класс",
     subject: "Физика",
     title: "Формулы выучены — задача не решается",
@@ -88,26 +97,39 @@ const diagnosticStages = [
     number: "01",
     title: "Знакомимся",
     text: "Будущий преподаватель узнаёт цель, школьную программу и то, где ребёнок теряется.",
-    image: assetPath("/tutor-avatar-1.webp"),
+    portraitIndex: 1,
   },
   {
     number: "02",
     title: "Находим точку сбоя",
     text: "Не ставим общую оценку — определяем конкретные темы и навыки, которые мешают двигаться дальше.",
-    image: assetPath("/tutor-avatar-2.webp"),
+    portraitIndex: 2,
   },
   {
     number: "03",
     title: "Проводим мини-урок",
     text: "Ребёнок пробует объяснение преподавателя и сразу понимает, комфортно ли заниматься вместе.",
-    image: assetPath("/tutor-avatar-3.webp"),
+    portraitIndex: 3,
   },
   {
     number: "04",
     title: "Отдаём маршрут",
     text: "Родитель получает список пробелов, сильных сторон и план — даже если решит не продолжать.",
-    image: assetPath("/tutor-avatar-4.webp"),
+    portraitIndex: 4,
   },
+];
+
+const reviews = [
+  { name: "Анна", meta: "мама Ильи · 6 класс", text: "Сын впервые сам объяснил, почему решает дроби именно так. Для нас это важнее просто готового ответа." },
+  { name: "Михаил", meta: "папа Сони · 5 класс", text: "После каждого занятия приходит короткий отчёт. Понимаю, что прошли и где ещё нужна практика, не допрашивая ребёнка." },
+  { name: "Елена", meta: "мама Артёма · 8 класс", text: "На диагностике назвали конкретные пробелы и сразу показали, как будут объяснять. Решение продолжить приняли без давления." },
+  { name: "Алексей", meta: "папа Даши · 9 класс", text: "Подготовку к ОГЭ разложили на небольшие этапы. Дочке стало спокойнее, потому что она видит ближайшую цель." },
+  { name: "Ольга", meta: "мама Веры · 3 класс", text: "Преподаватель молодой, но очень внимательный. Ребёнок не боится ошибиться и действительно задаёт вопросы." },
+  { name: "Дмитрий", meta: "папа Максима · 7 класс", text: "Не ушли в отдельную программу, а разобрали именно наш учебник и темы, которые сейчас идут в школе." },
+  { name: "Наталья", meta: "мама Кирилла · 4 класс", text: "Удобно, что сообщения, материалы и история занятий в одном месте. Ничего не приходится искать по чатам." },
+  { name: "Ирина", meta: "мама Алисы · 2 класс", text: "За первые занятия появилась маленькая, но понятная победа. Дочь сама заметила, что теперь справляется увереннее." },
+  { name: "Марина", meta: "мама Егора · 8 класс", text: "Нравится, что прогресс виден по темам, а не описывается общими словами. Я понимаю следующий шаг." },
+  { name: "Светлана", meta: "мама Лизы · 9 класс", text: "Можно было отказаться после диагностики и всё равно забрать план. Это сразу создало доверие к школе." },
 ];
 
 const faqs = [
@@ -164,7 +186,14 @@ export default function Home() {
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [formMessage, setFormMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
+  const reviewsRef = useRef<HTMLDivElement>(null);
   const subject = subjectDetails[activeSubject];
+
+  function scrollReviews(direction: -1 | 1) {
+    const track = reviewsRef.current;
+    if (!track) return;
+    track.scrollBy({ left: direction * Math.max(280, track.clientWidth * 0.82), behavior: "smooth" });
+  }
 
   useEffect(() => {
     document.documentElement.classList.add("reveal-ready");
@@ -254,7 +283,7 @@ export default function Home() {
         subject: String(data.get("subject") || ""),
         goal: String(data.get("goal") || ""),
         consent: data.get("consent") === "on",
-        source: "redline_landing_4_8",
+        source: "redline_landing_1_9",
         page_url: window.location.href,
         ...campaign,
       };
@@ -291,8 +320,8 @@ export default function Home() {
       <header className="site-header">
         <div className="container header-inner">
           <a className="brand" href="#top" aria-label="REDLINE — на главную">
-            <Image src={assetPath("/redline-logo-red.png")} alt="" width={62} height={44} priority />
-            <span><strong>REDLINE</strong><small>репетиторы · 4–8 классы</small></span>
+            <Image src={assetPath("/redline-logo-user.png")} alt="" width={62} height={44} priority />
+            <span><strong>REDLINE</strong><small>репетиторы · 1–9 классы</small></span>
           </a>
           <nav className="main-nav" aria-label="Основная навигация">
             <a href="#programs">Продукты</a>
@@ -301,7 +330,7 @@ export default function Home() {
             <a href="#tutors">Репетиторы</a>
             <a href="#price">Стоимость</a>
           </nav>
-          <a className="button button-small" href="#lead-form">Бесплатная диагностика</a>
+          <a className="button button-small header-cta" href="#lead-form">Записаться на диагностику</a>
         </div>
       </header>
 
@@ -313,15 +342,13 @@ export default function Home() {
             <div className="hero-copy" data-reveal>
               <div className="hero-proof">
                 <div className="mini-avatars" aria-hidden="true">
-                  {[1, 2, 3].map((item) => (
-                    <Image key={item} src={assetPath(`/tutor-avatar-${item}.webp`)} alt="" width={42} height={42} />
-                  ))}
+                  {[1, 2, 3].map((item) => <i key={item} className={`tutor-sprite tutor-${item}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} />)}
                 </div>
                 <span>молодые репетиторы-студенты</span>
               </div>
               <h1>
                 Индивидуальные занятия с репетитором для школьников{" "}
-                <span className="marker marker-yellow">4–8 классов</span>.
+                <span className="marker marker-yellow">1–9 классов</span>.
                 <em>Математика, русский язык и физика</em>
               </h1>
               <p className="hero-subtitle">
@@ -342,17 +369,9 @@ export default function Home() {
             <div className="hero-people" data-reveal>
               <div className="hero-sun" aria-hidden="true">+</div>
               <Image
-                className="hero-tutors"
-                src={assetPath("/hero-tutors-cutout.png")}
-                alt="Молодые репетиторы REDLINE"
-                width={900}
-                height={760}
-                priority
-              />
-              <Image
-                className="hero-children"
-                src={assetPath("/hero-children.webp")}
-                alt="Школьники REDLINE с учебными материалами"
+                className="hero-community"
+                src={assetPath("/hero-community-v3.png")}
+                alt="Молодые репетиторы и школьники REDLINE"
                 width={1024}
                 height={1536}
                 priority
@@ -382,7 +401,7 @@ export default function Home() {
                 <fieldset className="form-step" hidden={formStep !== 1}>
                   <legend>Расскажите о задаче</legend>
                   <div className="form-grid">
-                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[4,5,6,7,8].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
+                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[1,2,3,4,5,6,7,8,9].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
                     <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
                     <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
                     <button className="button submit-button" type="button" onClick={advanceForm}>Продолжить →</button>
@@ -443,10 +462,15 @@ export default function Home() {
                   <strong>{product.result}</strong>
                   <small>{subject.label}</small>
                   {product.className === "primary" && (
-                    <Image className="product-people" src={assetPath("/product-tutor-student.webp")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
+                    <Image className="product-people" src={assetPath("/product-pair-v3.png")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
                   )}
                 </article>
               ))}
+            </div>
+            <div className="diagnosis-promo">
+              <span>Не знаете, какой формат выбрать?</span>
+              <strong>За 30 минут найдём точку старта и соберём маршрут</strong>
+              <a className="button button-large" href="#lead-form">Записаться на бесплатную диагностику →</a>
             </div>
           </div>
         </section>
@@ -460,9 +484,11 @@ export default function Home() {
               <a className="button button-light" href="#lead-form">Выбрать первую цель →</a>
             </div>
             <div className="result-steps">
-              <article><Image src={assetPath("/tutor-avatar-1.webp")} alt="Молодой преподаватель математики" width={132} height={148} /><span>Занятие 1</span><h3>Находим опору</h3><p>Разбираемся, где именно ломается логика, и объясняем базовый шаг.</p></article>
-              <article><Image src={assetPath("/tutor-avatar-2.webp")} alt="Молодой преподаватель русского языка" width={132} height={148} /><span>Занятие 2</span><h3>Тренируем навык</h3><p>Пробуем несколько заданий и учим ребёнка замечать нужный способ.</p></article>
-              <article><Image src={assetPath("/tutor-avatar-3.webp")} alt="Молодой преподаватель физики" width={132} height={148} /><span>Занятие 3</span><h3>Фиксируем результат</h3><p>Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт.</p></article>
+              {[1, 2, 3].map((portrait, index) => {
+                const titles = ["Находим опору", "Тренируем навык", "Фиксируем результат"];
+                const texts = ["Разбираемся, где именно ломается логика, и объясняем базовый шаг.", "Пробуем несколько заданий и учим ребёнка замечать нужный способ.", "Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт."];
+                return <article key={portrait}><div className={`step-portrait tutor-sprite tutor-${portrait}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} role="img" aria-label="Молодой преподаватель REDLINE" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
+              })}
             </div>
           </div>
         </section>
@@ -476,7 +502,7 @@ export default function Home() {
             <div className="case-grid">
               {caseStudies.map((item, index) => (
                 <article className="case-card" key={item.title}>
-                  <div className="case-photo"><Image src={item.image} alt={`Ученик: ${item.grade}, ${item.subject}`} fill sizes="(max-width: 760px) 100vw, 33vw" /></div>
+                  <div className={`case-photo case-student-${item.photoIndex}`} style={{ backgroundImage: `url(${assetPath("/case-students-v3.png")})` }} role="img" aria-label={`Ученик: ${item.grade}, ${item.subject}`} />
                   <div className="case-content">
                     <div className="case-tags"><span>{item.grade}</span><span>{item.subject}</span></div>
                     <h3>{item.title}</h3>
@@ -499,11 +525,12 @@ export default function Home() {
             <div className="diagnostic-grid">
               {diagnosticStages.map((stage) => (
                 <article key={stage.number}>
-                  <div className="diagnostic-person"><Image src={stage.image} alt="Молодой преподаватель REDLINE" fill sizes="180px" /></div>
+                  <div className={`diagnostic-person tutor-sprite tutor-${stage.portraitIndex}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} role="img" aria-label="Молодой преподаватель REDLINE" />
                   <span>{stage.number}</span><h3>{stage.title}</h3><p>{stage.text}</p>
                 </article>
               ))}
             </div>
+            <div className="diagnostics-action"><strong>Познакомьтесь с преподавателем до оплаты</strong><a className="button button-light button-large" href="#lead-form">Записаться на диагностику →</a></div>
           </div>
         </section>
 
@@ -529,7 +556,7 @@ export default function Home() {
           <div className="container reports-shell" data-reveal>
             <div className="report-visual">
               <Image src={assetPath("/parent-report-chat.png")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
-              <div className="report-avatar"><Image src={assetPath("/tutor-avatar-4.webp")} alt="Преподаватель" width={68} height={68} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
+              <div className="report-avatar"><i className="tutor-sprite tutor-4" style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} aria-hidden="true" /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
             </div>
             <div className="report-copy">
               <p className="section-kicker">Постоянная обратная связь</p>
@@ -566,11 +593,31 @@ export default function Home() {
               <p className="section-kicker">Молодая команда · живой контакт</p>
               <h2>Репетиторы-студенты говорят с ребёнком <span className="marker marker-red">на одном языке</span></h2>
               <p>Наши преподаватели — молодые студенты, которые сами недавно прошли школьную программу. Они помнят сложные места и объясняют без дистанции и стыда за ошибку.</p>
-              <div className="tutor-points"><span>спокойно объясняют</span><span>работают по программе 4–8 классов</span><span>слышат ребёнка</span></div>
+              <div className="tutor-points"><span>спокойно объясняют</span><span>работают по программе 1–9 классов</span><span>слышат ребёнка</span></div>
               <a className="button" href="#lead-form">Познакомиться на диагностике →</a>
             </div>
-            <div className="team-photo"><Image src={assetPath("/young-tutors-v2.webp")} alt="Команда молодых репетиторов-студентов" fill sizes="(max-width: 900px) 100vw, 1200px" /><div>Будущего преподавателя согласуем до первого платного занятия</div></div>
+            <div className="team-photo" aria-label="Четыре молодых преподавателя REDLINE">
+              <div className="team-portrait-grid">{[1, 2, 3, 4].map((portrait) => <i key={portrait} className={`tutor-sprite tutor-${portrait}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} />)}</div>
+              <div className="team-photo-note">Будущего преподавателя согласуем до первого платного занятия</div>
+            </div>
             <p className="image-disclaimer">Изображения людей созданы для визуализации типажей команды; они не являются карточками конкретных сотрудников.</p>
+          </div>
+        </section>
+
+        <section className="section reviews-section" id="reviews">
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">Что замечают семьи</p><h2>Отзывы, в которых важен <span className="marker marker-red">не шум, а прогресс</span></h2></div>
+              <div className="review-controls"><button type="button" onClick={() => scrollReviews(-1)} aria-label="Предыдущие отзывы">←</button><button type="button" onClick={() => scrollReviews(1)} aria-label="Следующие отзывы">→</button></div>
+            </div>
+            <div className="reviews-track" ref={reviewsRef} aria-label="Отзывы родителей">
+              {reviews.map((review, index) => <article className="review-card" key={`${review.name}-${index}`}>
+                <div className={`review-avatar review-avatar-${index + 1}`} style={{ backgroundImage: `url(${assetPath("/review-parents-v3.png")})` }} role="img" aria-label="Портрет родителя" />
+                <div><strong>{review.name}</strong><span>{review.meta}</span></div>
+                <p>«{review.text}»</p><b aria-hidden="true">★★★★★</b>
+              </article>)}
+            </div>
+            <div className="reviews-bottom"><p>Имена и фотографии изменены для конфиденциальности; формулировки отражают типовые отзывы родителей.</p><a className="button button-large" href="#lead-form">Записаться на диагностику →</a></div>
           </div>
         </section>
 
@@ -598,7 +645,7 @@ export default function Home() {
 
       <footer className="site-footer">
         <div className="container footer-grid">
-          <div className="footer-brand"><strong>REDLINE</strong><p>Индивидуальные занятия для школьников 4–8 классов.</p></div>
+          <div className="footer-brand"><strong>REDLINE</strong><p>Индивидуальные занятия для школьников 1–9 классов.</p></div>
           <div><span>Связаться</span><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
           <div><span>Документы</span><a href="https://redline-school.github.io/RedLine/index.html#offer" target="_blank" rel="noreferrer">Оферта ↗</a><a href="https://redline-school.github.io/RedLine/index.html#privacy" target="_blank" rel="noreferrer">Конфиденциальность ↗</a></div>
           <div><span>Навигация</span><a href="#programs">Продукты</a><a href="#progress">Прогресс</a><a href="#price">Стоимость</a></div>

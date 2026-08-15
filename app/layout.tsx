@@ -8,11 +8,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const baseUrl = host ? new URL(`${protocol}://${host}`) : undefined;
-  const title = "REDLINE — репетиторы для 4–8 классов";
+  const title = "REDLINE";
   const description =
-    "Индивидуальные занятия по математике, русскому языку и физике для 4–8 классов. Бесплатная диагностика, личный план и первый измеримый результат за 3 занятия.";
+    "Индивидуальные занятия по математике, русскому языку и физике для 1–9 классов. Бесплатная диагностика, личный план и первый измеримый результат за 3 занятия.";
   const socialImage = baseUrl
-    ? new URL(`${publicBasePath}/og.png`, baseUrl).toString()
+    ? new URL(`${publicBasePath}/og-v2.png`, baseUrl).toString()
     : undefined;
 
   return {
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: `${publicBasePath}/redline-icon.png`,
+      icon: `${publicBasePath}/redline-logo-user.png`,
       apple: `${publicBasePath}/redline-icon.png`,
     },
     openGraph: {
