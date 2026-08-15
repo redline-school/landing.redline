@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
+
 const goals = [
   "Повысить успеваемость",
   "Закрыть пробелы или идти на опережение",
@@ -58,21 +61,21 @@ const products = [
 
 const caseStudies = [
   {
-    image: "/case-student-1.webp",
+    image: assetPath("/case-student-1.webp"),
     grade: "5 класс",
     subject: "Русский язык",
     title: "Правила знает — в работе не замечает",
     route: "Карта повторяющихся ошибок → тренировка орфограмм → самопроверка.",
   },
   {
-    image: "/case-student-2.webp",
+    image: assetPath("/case-student-2.webp"),
     grade: "6 класс",
     subject: "Математика",
     title: "Дроби превратились в угадывание",
     route: "Проверка базы → смысл действий → школьные задачи без подсказки.",
   },
   {
-    image: "/case-student-3.webp",
+    image: assetPath("/case-student-3.webp"),
     grade: "8 класс",
     subject: "Физика",
     title: "Формулы выучены — задача не решается",
@@ -85,25 +88,25 @@ const diagnosticStages = [
     number: "01",
     title: "Знакомимся",
     text: "Будущий преподаватель узнаёт цель, школьную программу и то, где ребёнок теряется.",
-    image: "/tutor-avatar-1.webp",
+    image: assetPath("/tutor-avatar-1.webp"),
   },
   {
     number: "02",
     title: "Находим точку сбоя",
     text: "Не ставим общую оценку — определяем конкретные темы и навыки, которые мешают двигаться дальше.",
-    image: "/tutor-avatar-2.webp",
+    image: assetPath("/tutor-avatar-2.webp"),
   },
   {
     number: "03",
     title: "Проводим мини-урок",
     text: "Ребёнок пробует объяснение преподавателя и сразу понимает, комфортно ли заниматься вместе.",
-    image: "/tutor-avatar-3.webp",
+    image: assetPath("/tutor-avatar-3.webp"),
   },
   {
     number: "04",
     title: "Отдаём маршрут",
     text: "Родитель получает список пробелов, сильных сторон и план — даже если решит не продолжать.",
-    image: "/tutor-avatar-4.webp",
+    image: assetPath("/tutor-avatar-4.webp"),
   },
 ];
 
@@ -239,25 +242,37 @@ export default function Home() {
     );
 
     try {
-      const response = await fetch("/api/lead", {
+      const isGitHubPages = window.location.hostname === "redline-school.github.io";
+      const leadEndpoint = isGitHubPages
+        ? "https://redline-4-8.pahanchic52.chatgpt.site/api/lead"
+        : "/api/lead";
+      const payload = {
+        parent_name: String(data.get("parent_name") || "").trim(),
+        phone,
+        contact_method: String(data.get("contact_method") || ""),
+        grade: String(data.get("grade") || ""),
+        subject: String(data.get("subject") || ""),
+        goal: String(data.get("goal") || ""),
+        consent: data.get("consent") === "on",
+        source: "redline_landing_4_8",
+        page_url: window.location.href,
+        ...campaign,
+      };
+      const response = await fetch(leadEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parent_name: String(data.get("parent_name") || "").trim(),
-          phone,
-          contact_method: String(data.get("contact_method") || ""),
-          grade: String(data.get("grade") || ""),
-          subject: String(data.get("subject") || ""),
-          goal: String(data.get("goal") || ""),
-          consent: data.get("consent") === "on",
-          source: "redline_landing_4_8",
-          page_url: window.location.href,
-          ...campaign,
-        }),
+        mode: isGitHubPages ? "no-cors" : "cors",
+        headers: {
+          "Content-Type": isGitHubPages
+            ? "text/plain;charset=UTF-8"
+            : "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
-      const result = await response.json().catch(() => ({ ok: false }));
-      if (!response.ok || !result.ok) throw new Error("lead_not_confirmed");
+      if (!isGitHubPages) {
+        const result = await response.json().catch(() => ({ ok: false }));
+        if (!response.ok || !result.ok) throw new Error("lead_not_confirmed");
+      }
 
       setFormStatus("success");
       setFormMessage("Заявка отправлена. Свяжемся с вами и подберём время диагностики.");
@@ -276,7 +291,7 @@ export default function Home() {
       <header className="site-header">
         <div className="container header-inner">
           <a className="brand" href="#top" aria-label="REDLINE — на главную">
-            <Image src="/redline-logo-red.png" alt="" width={62} height={44} priority />
+            <Image src={assetPath("/redline-logo-red.png")} alt="" width={62} height={44} priority />
             <span><strong>REDLINE</strong><small>репетиторы · 4–8 классы</small></span>
           </a>
           <nav className="main-nav" aria-label="Основная навигация">
@@ -299,7 +314,7 @@ export default function Home() {
               <div className="hero-proof">
                 <div className="mini-avatars" aria-hidden="true">
                   {[1, 2, 3].map((item) => (
-                    <Image key={item} src={`/tutor-avatar-${item}.webp`} alt="" width={42} height={42} />
+                    <Image key={item} src={assetPath(`/tutor-avatar-${item}.webp`)} alt="" width={42} height={42} />
                   ))}
                 </div>
                 <span>молодые репетиторы-студенты</span>
@@ -328,7 +343,7 @@ export default function Home() {
               <div className="hero-sun" aria-hidden="true">+</div>
               <Image
                 className="hero-tutors"
-                src="/hero-tutors-cutout.png"
+                src={assetPath("/hero-tutors-cutout.png")}
                 alt="Молодые репетиторы REDLINE"
                 width={900}
                 height={760}
@@ -336,7 +351,7 @@ export default function Home() {
               />
               <Image
                 className="hero-children"
-                src="/hero-children.webp"
+                src={assetPath("/hero-children.webp")}
                 alt="Школьники REDLINE с учебными материалами"
                 width={1024}
                 height={1536}
@@ -428,7 +443,7 @@ export default function Home() {
                   <strong>{product.result}</strong>
                   <small>{subject.label}</small>
                   {product.className === "primary" && (
-                    <Image className="product-people" src="/product-tutor-student.webp" alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
+                    <Image className="product-people" src={assetPath("/product-tutor-student.webp")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
                   )}
                 </article>
               ))}
@@ -445,9 +460,9 @@ export default function Home() {
               <a className="button button-light" href="#lead-form">Выбрать первую цель →</a>
             </div>
             <div className="result-steps">
-              <article><Image src="/tutor-avatar-1.webp" alt="Молодой преподаватель математики" width={132} height={148} /><span>Занятие 1</span><h3>Находим опору</h3><p>Разбираемся, где именно ломается логика, и объясняем базовый шаг.</p></article>
-              <article><Image src="/tutor-avatar-2.webp" alt="Молодой преподаватель русского языка" width={132} height={148} /><span>Занятие 2</span><h3>Тренируем навык</h3><p>Пробуем несколько заданий и учим ребёнка замечать нужный способ.</p></article>
-              <article><Image src="/tutor-avatar-3.webp" alt="Молодой преподаватель физики" width={132} height={148} /><span>Занятие 3</span><h3>Фиксируем результат</h3><p>Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт.</p></article>
+              <article><Image src={assetPath("/tutor-avatar-1.webp")} alt="Молодой преподаватель математики" width={132} height={148} /><span>Занятие 1</span><h3>Находим опору</h3><p>Разбираемся, где именно ломается логика, и объясняем базовый шаг.</p></article>
+              <article><Image src={assetPath("/tutor-avatar-2.webp")} alt="Молодой преподаватель русского языка" width={132} height={148} /><span>Занятие 2</span><h3>Тренируем навык</h3><p>Пробуем несколько заданий и учим ребёнка замечать нужный способ.</p></article>
+              <article><Image src={assetPath("/tutor-avatar-3.webp")} alt="Молодой преподаватель физики" width={132} height={148} /><span>Занятие 3</span><h3>Фиксируем результат</h3><p>Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт.</p></article>
             </div>
           </div>
         </section>
@@ -499,7 +514,7 @@ export default function Home() {
               <p>Освоенные темы, регулярность, домашние задания, сильные стороны и зоны роста собраны в понятном личном кабинете.</p>
             </div>
             <div className="dashboard-frame">
-              <Image src="/progress-dashboard.png" alt="Пример кабинета с динамикой прогресса ученика" width={1536} height={1024} />
+              <Image src={assetPath("/progress-dashboard.png")} alt="Пример кабинета с динамикой прогресса ученика" width={1536} height={1024} />
               <div className="progress-sticker"><strong>+36%</strong><span>пример динамики<br />за 8 занятий</span></div>
             </div>
             <div className="progress-benefits">
@@ -513,8 +528,8 @@ export default function Home() {
         <section className="section reports-section">
           <div className="container reports-shell" data-reveal>
             <div className="report-visual">
-              <Image src="/parent-report-chat.png" alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
-              <div className="report-avatar"><Image src="/tutor-avatar-4.webp" alt="Преподаватель" width={68} height={68} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
+              <Image src={assetPath("/parent-report-chat.png")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
+              <div className="report-avatar"><Image src={assetPath("/tutor-avatar-4.webp")} alt="Преподаватель" width={68} height={68} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
             </div>
             <div className="report-copy">
               <p className="section-kicker">Постоянная обратная связь</p>
@@ -534,11 +549,11 @@ export default function Home() {
             <div className="communication-grid">
               <div className="phone-stage">
                 <div className="phone-copy"><span>В приложении</span><h3>Свободное общение с репетитором</h3><p>Вопрос, фотография задания, голосовое объяснение — всё остаётся в диалоге.</p></div>
-                <div className="phone-frame"><Image src="/app-tutor-chat.png" alt="Диалог ученика с репетитором в приложении REDLINE" width={988} height={2048} /></div>
+                <div className="phone-frame"><Image src={assetPath("/app-tutor-chat.png")} alt="Диалог ученика с репетитором в приложении REDLINE" width={988} height={2048} /></div>
               </div>
               <div className="site-stage">
                 <div><span>На сайте</span><h3>Все чаты и история занятий под рукой</h3><p>Репетитор, поддержка и дополнительные материалы не теряются.</p></div>
-                <Image src="/website-chats.png" alt="Чаты с поддержкой и преподавателями на сайте REDLINE" width={868} height={365} />
+                <Image src={assetPath("/website-chats.png")} alt="Чаты с поддержкой и преподавателями на сайте REDLINE" width={868} height={365} />
                 <div className="site-features"><b>✓ преподаватель рядом</b><b>✓ материалы в истории</b><b>✓ поддержка помогает</b></div>
               </div>
             </div>
@@ -554,7 +569,7 @@ export default function Home() {
               <div className="tutor-points"><span>спокойно объясняют</span><span>работают по программе 4–8 классов</span><span>слышат ребёнка</span></div>
               <a className="button" href="#lead-form">Познакомиться на диагностике →</a>
             </div>
-            <div className="team-photo"><Image src="/young-tutors-v2.webp" alt="Команда молодых репетиторов-студентов" fill sizes="(max-width: 900px) 100vw, 1200px" /><div>Будущего преподавателя согласуем до первого платного занятия</div></div>
+            <div className="team-photo"><Image src={assetPath("/young-tutors-v2.webp")} alt="Команда молодых репетиторов-студентов" fill sizes="(max-width: 900px) 100vw, 1200px" /><div>Будущего преподавателя согласуем до первого платного занятия</div></div>
             <p className="image-disclaimer">Изображения людей созданы для визуализации типажей команды; они не являются карточками конкретных сотрудников.</p>
           </div>
         </section>
@@ -595,3 +610,4 @@ export default function Home() {
     </>
   );
 }
+
