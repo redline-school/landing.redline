@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
+const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
 
 const goals = [
   "Повысить успеваемость",
@@ -70,21 +71,21 @@ const products = [
 
 const caseStudies = [
   {
-    photoIndex: 1,
+    photo: "/case-student-1-v4.jpg",
     grade: "5 класс",
     subject: "Русский язык",
     title: "Правила знает — в работе не замечает",
     route: "Карта повторяющихся ошибок → тренировка орфограмм → самопроверка.",
   },
   {
-    photoIndex: 2,
+    photo: "/case-student-2-v4.jpg",
     grade: "6 класс",
     subject: "Математика",
     title: "Дроби превратились в угадывание",
     route: "Проверка базы → смысл действий → школьные задачи без подсказки.",
   },
   {
-    photoIndex: 3,
+    photo: "/case-student-3-v4.jpg",
     grade: "8 класс",
     subject: "Физика",
     title: "Формулы выучены — задача не решается",
@@ -185,14 +186,24 @@ export default function Home() {
   const [formStep, setFormStep] = useState<1 | 2>(1);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [formMessage, setFormMessage] = useState("");
+  const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const reviewsRef = useRef<HTMLDivElement>(null);
+  const parentVideoRef = useRef<HTMLVideoElement>(null);
   const subject = subjectDetails[activeSubject];
 
   function scrollReviews(direction: -1 | 1) {
     const track = reviewsRef.current;
     if (!track) return;
     track.scrollBy({ left: direction * Math.max(280, track.clientWidth * 0.82), behavior: "smooth" });
+  }
+
+  function toggleParentVideo(expanded: boolean) {
+    setIsVideoExpanded(expanded);
+    const video = parentVideoRef.current;
+    if (!video) return;
+    video.muted = !expanded;
+    void video.play().catch(() => undefined);
   }
 
   useEffect(() => {
@@ -342,7 +353,7 @@ export default function Home() {
             <div className="hero-copy" data-reveal>
               <div className="hero-proof">
                 <div className="mini-avatars" aria-hidden="true">
-                  {[1, 2, 3].map((item) => <i key={item} className={`tutor-sprite tutor-${item}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} />)}
+                  {[1, 2, 3].map((item) => <Image key={item} src={tutorPhoto(item)} alt="" width={38} height={38} />)}
                 </div>
                 <span>молодые репетиторы-студенты</span>
               </div>
@@ -487,7 +498,7 @@ export default function Home() {
               {[1, 2, 3].map((portrait, index) => {
                 const titles = ["Находим опору", "Тренируем навык", "Фиксируем результат"];
                 const texts = ["Разбираемся, где именно ломается логика, и объясняем базовый шаг.", "Пробуем несколько заданий и учим ребёнка замечать нужный способ.", "Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт."];
-                return <article key={portrait}><div className={`step-portrait tutor-sprite tutor-${portrait}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} role="img" aria-label="Молодой преподаватель REDLINE" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
+                return <article key={portrait}><Image className="step-portrait" src={tutorPhoto(portrait)} alt="Молодой преподаватель REDLINE" width={520} height={650} sizes="(max-width: 620px) 86px, 190px" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
               })}
             </div>
           </div>
@@ -502,7 +513,7 @@ export default function Home() {
             <div className="case-grid">
               {caseStudies.map((item, index) => (
                 <article className="case-card" key={item.title}>
-                  <div className={`case-photo case-student-${item.photoIndex}`} style={{ backgroundImage: `url(${assetPath("/case-students-v3.png")})` }} role="img" aria-label={`Ученик: ${item.grade}, ${item.subject}`} />
+                  <div className="case-photo"><Image src={assetPath(item.photo)} alt={`Ученик: ${item.grade}, ${item.subject}`} fill sizes="(max-width: 620px) 84vw, 33vw" /></div>
                   <div className="case-content">
                     <div className="case-tags"><span>{item.grade}</span><span>{item.subject}</span></div>
                     <h3>{item.title}</h3>
@@ -525,7 +536,7 @@ export default function Home() {
             <div className="diagnostic-grid">
               {diagnosticStages.map((stage) => (
                 <article key={stage.number}>
-                  <div className={`diagnostic-person tutor-sprite tutor-${stage.portraitIndex}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} role="img" aria-label="Молодой преподаватель REDLINE" />
+                  <div className="diagnostic-person"><Image src={tutorPhoto(stage.portraitIndex)} alt="Молодой преподаватель REDLINE" fill sizes="(max-width: 620px) 118px, 22vw" /></div>
                   <span>{stage.number}</span><h3>{stage.title}</h3><p>{stage.text}</p>
                 </article>
               ))}
@@ -556,7 +567,7 @@ export default function Home() {
           <div className="container reports-shell" data-reveal>
             <div className="report-visual">
               <Image src={assetPath("/parent-report-chat.png")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
-              <div className="report-avatar"><i className="tutor-sprite tutor-4" style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} aria-hidden="true" /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
+              <div className="report-avatar"><Image src={tutorPhoto(4)} alt="" width={56} height={56} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
             </div>
             <div className="report-copy">
               <p className="section-kicker">Постоянная обратная связь</p>
@@ -597,7 +608,7 @@ export default function Home() {
               <a className="button" href="#lead-form">Познакомиться на диагностике →</a>
             </div>
             <div className="team-photo" aria-label="Четыре молодых преподавателя REDLINE">
-              <div className="team-portrait-grid">{[1, 2, 3, 4].map((portrait) => <i key={portrait} className={`tutor-sprite tutor-${portrait}`} style={{ backgroundImage: `url(${assetPath("/tutor-portraits-v3.png")})` }} />)}</div>
+              <div className="team-portrait-grid">{[1, 2, 3, 4].map((portrait) => <Image key={portrait} src={tutorPhoto(portrait)} alt="" width={520} height={650} sizes="(max-width: 620px) 50vw, 30vw" />)}</div>
               <div className="team-photo-note">Будущего преподавателя согласуем до первого платного занятия</div>
             </div>
             <p className="image-disclaimer">Изображения людей созданы для визуализации типажей команды; они не являются карточками конкретных сотрудников.</p>
@@ -652,6 +663,28 @@ export default function Home() {
         </div>
         <div className="container footer-bottom"><span>© 2026 REDLINE</span><span>Онлайн · Россия</span></div>
       </footer>
+
+      <aside className={`floating-review${isVideoExpanded ? " is-expanded" : ""}`} aria-label="Видеоотзыв родителя">
+        <div className="floating-review-head">
+          <span><b>Видеоотзыв родителя</b><small>о занятиях в REDLINE</small></span>
+          {isVideoExpanded && <button type="button" onClick={() => toggleParentVideo(false)} aria-label="Свернуть видеоотзыв">×</button>}
+        </div>
+        <div className="floating-review-media">
+          <video
+            ref={parentVideoRef}
+            src={assetPath("/parent-review-video.mp4")}
+            autoPlay
+            muted={!isVideoExpanded}
+            loop={!isVideoExpanded}
+            playsInline
+            preload="metadata"
+            controls={isVideoExpanded}
+          >
+            <track kind="captions" src={assetPath("/parent-review-captions.vtt")} srcLang="ru" label="Русские субтитры" />
+          </video>
+          {!isVideoExpanded && <button type="button" className="floating-review-open" onClick={() => toggleParentVideo(true)} aria-label="Открыть видеоотзыв родителя"><span aria-hidden="true">▶</span><b>Смотреть отзыв</b></button>}
+        </div>
+      </aside>
 
       <a className="mobile-sticky" href="#lead-form">Бесплатная диагностика <span>→</span></a>
     </>

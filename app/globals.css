@@ -318,17 +318,6 @@ summary:focus-visible {
   object-fit: cover;
 }
 
-.tutor-sprite {
-  display: block;
-  background-repeat: no-repeat;
-  background-size: 400% 100%;
-}
-
-.tutor-1 { background-position: 0 50%; }
-.tutor-2 { background-position: 33.333% 50%; }
-.tutor-3 { background-position: 66.666% 50%; }
-.tutor-4 { background-position: 100% 50%; }
-
 .hero h1 {
   max-width: 785px;
   margin: 0;
@@ -1219,13 +1208,7 @@ summary:focus-visible {
   height: 310px;
   overflow: hidden;
   background: #eee;
-  background-repeat: no-repeat;
-  background-size: 300% 100%;
 }
-
-.case-student-1 { background-position: 0 50%; }
-.case-student-2 { background-position: 50% 50%; }
-.case-student-3 { background-position: 100% 50%; }
 
 .case-photo img {
   object-fit: cover;
@@ -1354,7 +1337,7 @@ summary:focus-visible {
 
 .diagnostic-person img {
   object-fit: cover;
-  object-position: center;
+  object-position: center 28%;
 }
 
 .diagnostic-grid article:nth-child(even) .diagnostic-person {
@@ -1752,10 +1735,12 @@ summary:focus-visible {
   background: var(--white);
 }
 
-.team-portrait-grid i {
+.team-portrait-grid img {
   width: 100%;
+  height: 100%;
   min-height: 0;
-  background-size: 400% 100%;
+  object-fit: cover;
+  object-position: center 25%;
 }
 
 .team-photo > .team-photo-note {
@@ -2185,6 +2170,117 @@ summary:focus-visible {
 
 .mobile-sticky {
   display: none;
+}
+
+.floating-review {
+  position: fixed;
+  z-index: 58;
+  left: 18px;
+  bottom: 18px;
+  width: 184px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  background: var(--ink);
+  color: var(--white);
+  box-shadow: 0 20px 48px rgba(23, 20, 20, 0.28);
+  transition: width 280ms cubic-bezier(0.2, 0.8, 0.2, 1), transform 220ms ease;
+}
+
+.floating-review:hover {
+  transform: translateY(-3px);
+}
+
+.floating-review.is-expanded {
+  width: min(360px, calc(100vw - 36px));
+  transform: none;
+}
+
+.floating-review-head {
+  min-height: 56px;
+  padding: 11px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.floating-review-head span {
+  display: grid;
+  gap: 2px;
+}
+
+.floating-review-head b {
+  color: var(--yellow);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.floating-review-head small {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 8px;
+}
+
+.floating-review-head button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--white);
+  font: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.floating-review-media {
+  position: relative;
+  aspect-ratio: 9 / 13;
+  overflow: hidden;
+  background: #090909;
+}
+
+.floating-review-media video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.floating-review-open {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(180deg, transparent 42%, rgba(16, 12, 13, 0.78) 100%);
+  color: var(--white);
+  font: inherit;
+  cursor: pointer;
+}
+
+.floating-review-open span {
+  width: 48px;
+  height: 48px;
+  padding-left: 3px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  box-shadow: 0 10px 24px rgba(235, 30, 47, 0.38);
+}
+
+.floating-review-open b {
+  margin-top: auto;
+  margin-bottom: 13px;
+  font-size: 9px;
 }
 
 [data-reveal] {
@@ -3063,6 +3159,40 @@ summary:focus-visible {
     font-size: 14px;
     font-weight: 900;
     box-shadow: 0 15px 35px rgba(113, 0, 10, 0.3);
+  }
+
+  .floating-review {
+    left: 10px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    width: 96px;
+    border-radius: 14px;
+  }
+
+  .floating-review.is-expanded {
+    width: min(330px, calc(100vw - 20px));
+  }
+
+  .floating-review-head {
+    min-height: 42px;
+    padding: 8px;
+  }
+
+  .floating-review-head b {
+    font-size: 7px;
+  }
+
+  .floating-review-head small {
+    display: none;
+  }
+
+  .floating-review-open span {
+    width: 36px;
+    height: 36px;
+  }
+
+  .floating-review-open b {
+    font-size: 7px;
+    margin-bottom: 8px;
   }
 }
 

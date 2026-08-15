@@ -20,7 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: `${publicBasePath}/redline-logo-user.png`,
+      icon: [{ url: `${publicBasePath}/favicon-v2.png`, type: "image/png", sizes: "1024x1024" }],
+      shortcut: `${publicBasePath}/favicon-v2.png`,
       apple: `${publicBasePath}/redline-icon.png`,
     },
     openGraph: {

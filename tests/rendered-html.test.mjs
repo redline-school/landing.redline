@@ -37,7 +37,8 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /1–9 классов/);
   assert.match(html, /Найдём пробелы/);
   assert.match(html, /от 900 ₽/i);
-  assert.match(html, /tutor-portraits-v3\.png/);
+  assert.match(html, /tutor-1-v4\.jpg/);
+  assert.match(html, /parent-review-video\.mp4/);
   assert.match(html, /первого измеримого результата/i);
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
   assert.match(html, /камера не нужна/i);
@@ -103,12 +104,19 @@ test("keeps the generated campaign assets and production form wiring", async () 
   for (const path of [
     "../public/hero-community-v3.png",
     "../public/product-pair-v3.png",
-    "../public/tutor-portraits-v3.png",
-    "../public/case-students-v3.png",
+    "../public/tutor-1-v4.jpg",
+    "../public/tutor-2-v4.jpg",
+    "../public/tutor-3-v4.jpg",
+    "../public/tutor-4-v4.jpg",
+    "../public/case-student-1-v4.jpg",
+    "../public/case-student-2-v4.jpg",
+    "../public/case-student-3-v4.jpg",
     "../public/review-parents-v3.png",
     "../public/progress-dashboard.png",
     "../public/app-tutor-chat.png",
     "../public/og-v2.png",
+    "../public/favicon-v2.png",
+    "../public/parent-review-video.mp4",
   ]) {
     const asset = new URL(path, import.meta.url);
     await access(asset);
