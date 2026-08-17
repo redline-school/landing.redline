@@ -4,7 +4,8 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
+const ASSET_VERSION = "20260817-2";
+const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
 const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
 
 const goals = [
@@ -353,7 +354,7 @@ export default function Home() {
             <div className="hero-copy" data-reveal>
               <div className="hero-proof">
                 <div className="mini-avatars" aria-hidden="true">
-                  {[1, 2, 3].map((item) => <Image key={item} src={tutorPhoto(item)} alt="" width={38} height={38} />)}
+                  {[1, 2, 3].map((item) => <Image key={item} src={tutorPhoto(item)} alt="" width={38} height={38} priority />)}
                 </div>
                 <span>молодые репетиторы-студенты</span>
               </div>
