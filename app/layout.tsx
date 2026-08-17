@@ -4,6 +4,7 @@ import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const faviconUrl = `${publicBasePath}/redline-icon.png?v=20260817`;
   const requestHeaders = await headers();
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
@@ -20,9 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: [{ url: `${publicBasePath}/favicon-v2.png`, type: "image/png", sizes: "1024x1024" }],
-      shortcut: `${publicBasePath}/favicon-v2.png`,
-      apple: `${publicBasePath}/redline-icon.png`,
+      icon: [{ url: faviconUrl, type: "image/png", sizes: "1024x1024" }],
+      shortcut: faviconUrl,
+      apple: faviconUrl,
     },
     openGraph: {
       title,
