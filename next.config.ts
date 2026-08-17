@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   assetPrefix: isGitHubPages ? "/landing.redline" : undefined,
   basePath: isGitHubPages ? "/landing.redline" : undefined,
   images: {
-    unoptimized: isGitHubPages,
+    unoptimized: true,
   },
 };
 

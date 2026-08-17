@@ -39,6 +39,7 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /от 900 ₽/i);
   assert.match(html, /tutor-1-v4\.jpg/);
   assert.match(html, /parent-review-video\.mp4/);
+  assert.doesNotMatch(html, /\/_next\/image\?url=/);
   assert.match(html, /первого измеримого результата/i);
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
   assert.match(html, /камера не нужна/i);
