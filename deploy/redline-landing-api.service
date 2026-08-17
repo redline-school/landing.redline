@@ -1,0 +1,16 @@
+[Unit]
+Description=REDLINE landing leads API
+After=network.target redline-api.service
+Requires=redline-api.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/tutor-chat-app/server
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/redline-landing-api/server.mjs
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
