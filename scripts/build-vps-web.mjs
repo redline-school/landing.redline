@@ -51,4 +51,25 @@ await mkdir(webDirectory, { recursive: true });
 await cp(resolve(root, "dist/client"), webDirectory, { recursive: true });
 await writeFile(resolve(webDirectory, "index.html"), await response.text(), "utf8");
 
+for (const route of ["offer", "privacy"]) {
+  const routeResponse = await worker.fetch(
+    new Request(`https://landing.redline-tutors.ru/${route}`, {
+      headers: { accept: "text/html" },
+    }),
+    {
+      ASSETS: {
+        fetch: async () => new Response("Not found", { status: 404 }),
+      },
+    },
+    {
+      waitUntil() {},
+      passThroughOnException() {},
+    },
+  );
+  if (!routeResponse.ok) throw new Error(`VPS render failed for /${route}/ with status ${routeResponse.status}`);
+  const routeDirectory = resolve(webDirectory, route);
+  await mkdir(routeDirectory, { recursive: true });
+  await writeFile(resolve(routeDirectory, "index.html"), await routeResponse.text(), "utf8");
+}
+
 console.log("VPS web bundle created in dist/vps-web");

@@ -4,8 +4,9 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const ASSET_VERSION = "20260817-2";
+const ASSET_VERSION = "20260818-1";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
+const pagePath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
 const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
 
 const goals = [
@@ -18,13 +19,6 @@ const goals = [
   "Подготовиться к переводному экзамену",
 ];
 
-const subjectDetails = {
-  math: { tab: "Математика", short: "математике", label: "Математика" },
-  russian: { tab: "Русский язык", short: "русскому языку", label: "Русский язык" },
-  physics: { tab: "Физика", short: "физике", label: "Физика · 7–9 классы" },
-} as const;
-
-type SubjectKey = keyof typeof subjectDetails;
 type FormStatus = "idle" | "loading" | "success" | "error";
 
 const products = [
@@ -178,20 +172,21 @@ const faqs = [
   {
     question: "Сколько стоит занятие?",
     answer:
-      "Индивидуальное онлайн-занятие длится 60 минут и стоит от 900 ₽. Для регулярных занятий есть пакеты со скидкой — подходящий формат предложим после диагностики.",
+      "Индивидуальное онлайн-занятие длится 60 минут и стоит от 1 200 ₽. Для регулярных занятий есть пакеты со скидкой — подходящий формат предложим после диагностики.",
   },
 ];
 
 export default function Home() {
-  const [activeSubject, setActiveSubject] = useState<SubjectKey>("math");
   const [formStep, setFormStep] = useState<1 | 2>(1);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [formMessage, setFormMessage] = useState("");
+  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
+  const [isVideoVisible, setIsVideoVisible] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
   const reviewsRef = useRef<HTMLDivElement>(null);
   const parentVideoRef = useRef<HTMLVideoElement>(null);
-  const subject = subjectDetails[activeSubject];
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
 
   function scrollReviews(direction: -1 | 1) {
     const track = reviewsRef.current;
@@ -203,9 +198,35 @@ export default function Home() {
     setIsVideoExpanded(expanded);
     const video = parentVideoRef.current;
     if (!video) return;
-    video.muted = !expanded;
-    void video.play().catch(() => undefined);
+    if (expanded) void video.play().catch(() => undefined);
+    else video.pause();
   }
+
+  function openLeadModal() {
+    setFormStatus("idle");
+    setFormMessage("");
+    setIsLeadModalOpen(true);
+  }
+
+  function closeLeadModal() {
+    if (formStatus === "loading") return;
+    setIsLeadModalOpen(false);
+  }
+
+  useEffect(() => {
+    if (!isLeadModalOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalCloseRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeLeadModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isLeadModalOpen, formStatus]);
 
   useEffect(() => {
     document.documentElement.classList.add("reveal-ready");
@@ -337,12 +358,12 @@ export default function Home() {
           </a>
           <nav className="main-nav" aria-label="Основная навигация">
             <a href="#programs">Продукты</a>
-            <a href="#first-result">3 занятия</a>
+            <a href="#first-result">Первый результат</a>
             <a href="#progress">Прогресс</a>
             <a href="#tutors">Репетиторы</a>
             <a href="#price">Стоимость</a>
           </nav>
-          <a className="button button-small header-cta" href="#lead-form">Записаться на диагностику</a>
+          <button className="button button-small header-cta" type="button" onClick={openLeadModal}>Записаться на диагностику</button>
         </div>
       </header>
 
@@ -352,12 +373,6 @@ export default function Home() {
           <div className="hero-orbit orbit-two" aria-hidden="true" />
           <div className="container hero-stage">
             <div className="hero-copy" data-reveal>
-              <div className="hero-proof">
-                <div className="mini-avatars" aria-hidden="true">
-                  {[1, 2, 3].map((item) => <Image key={item} src={tutorPhoto(item)} alt="" width={38} height={38} priority />)}
-                </div>
-                <span>молодые репетиторы-студенты</span>
-              </div>
               <h1>
                 Индивидуальные занятия с репетитором для школьников{" "}
                 <span className="marker marker-yellow">1–9 классов</span>.
@@ -367,10 +382,9 @@ export default function Home() {
                 <strong>Бесплатная диагностика за 30 минут</strong> + индивидуальный план
               </p>
               <div className="hero-actions">
-                <a className="button button-light button-large" href="#lead-form">
+                <button className="button button-light button-large" type="button" onClick={openLeadModal}>
                   Записаться бесплатно <span aria-hidden="true">→</span>
-                </a>
-                <span>камера не нужна · можно отказаться</span>
+                </button>
               </div>
               <div className="three-lesson-promise">
                 <b>3</b>
@@ -382,64 +396,12 @@ export default function Home() {
               <div className="hero-sun" aria-hidden="true">+</div>
               <Image
                 className="hero-community"
-                src={assetPath("/hero-community-v3.png")}
+                src={assetPath("/hero-community-v3.webp")}
                 alt="Молодые репетиторы и школьники REDLINE"
                 width={1024}
                 height={1536}
                 priority
               />
-              <div className="floating-note note-top">
-                <span>После занятия</span>
-                <strong>Родитель видит, что получилось</strong>
-              </div>
-              <div className="floating-note note-bottom">
-                <i aria-hidden="true">✓</i>
-                <span><strong>Первая победа</strong>за 3 занятия</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="container hero-form-wrap" data-reveal>
-            <div className="lead-card" id="lead-form">
-              <div className="lead-card-intro">
-                <span>Бесплатно · 30 минут</span>
-                <h2>Найдём пробелы и познакомим с будущим преподавателем</h2>
-                <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}>
-                  <i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b>
-                </div>
-              </div>
-
-              <form ref={formRef} className="lead-form" onSubmit={submitLead}>
-                <fieldset className="form-step" hidden={formStep !== 1}>
-                  <legend>Расскажите о задаче</legend>
-                  <div className="form-grid">
-                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[1,2,3,4,5,6,7,8,9].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
-                    <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
-                    <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
-                    <button className="button submit-button" type="button" onClick={advanceForm}>Продолжить →</button>
-                  </div>
-                </fieldset>
-
-                <fieldset className="form-step" hidden={formStep !== 2}>
-                  <legend>Куда отправить подтверждение</legend>
-                  <div className="form-grid contact-grid">
-                    <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
-                    <label><span>Телефон</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
-                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>Telegram по номеру телефона</option></select></label>
-                    <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Записаться бесплатно"}</button>
-                  </div>
-                  <div className="form-meta">
-                    <button className="back-button" type="button" onClick={() => setFormStep(1)}>← Назад</button>
-                    <label className="consent-field"><input type="checkbox" name="consent" required /><span>Согласен(а) на обработку данных по <a href="https://redline-school.github.io/RedLine/index.html#privacy" target="_blank" rel="noreferrer">политике</a></span></label>
-                  </div>
-                </fieldset>
-
-                {formMessage && (
-                  <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>
-                    {formMessage}{formStatus === "error" && <> <a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Написать в Telegram</a></>}
-                  </div>
-                )}
-              </form>
             </div>
           </div>
         </section>
@@ -459,22 +421,16 @@ export default function Home() {
               <div><p className="section-kicker">Не один курс на все случаи</p><h2>Выбираем продукт под <span className="marker marker-red">родительский запрос</span></h2></div>
               <p>Каждый формат доступен по математике, русскому языку и физике. Программа собирается вокруг учебника, цели и срока.</p>
             </div>
-            <div className="subject-switch" role="group" aria-label="Выберите предмет">
-              {(Object.keys(subjectDetails) as SubjectKey[]).map((key) => (
-                <button type="button" key={key} className={activeSubject === key ? "active" : ""} aria-pressed={activeSubject === key} onClick={() => setActiveSubject(key)}>{subjectDetails[key].tab}</button>
-              ))}
-            </div>
-            <div className="subject-caption" key={activeSubject}>Сейчас показываем продукты по <strong>{subject.short}</strong></div>
-            <div className="product-grid subject-enter" key={`${activeSubject}-products`}>
+            <p className="product-scope">Математика · русский язык · физика</p>
+            <div className="product-grid">
               {products.map((product) => (
                 <article className={`product-card ${product.className}`} key={product.title}>
                   <div className="product-top"><span>{product.number}</span><i>{product.badge}</i></div>
                   <h3>{product.title}</h3>
                   <p>{product.text}</p>
                   <strong>{product.result}</strong>
-                  <small>{subject.label}</small>
                   {product.className === "primary" && (
-                    <Image className="product-people" src={assetPath("/product-pair-v3.png")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
+                    <Image className="product-people" src={assetPath("/product-pair-v3.webp")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
                   )}
                 </article>
               ))}
@@ -482,7 +438,7 @@ export default function Home() {
             <div className="diagnosis-promo">
               <span>Не знаете, какой формат выбрать?</span>
               <strong>За 30 минут найдём точку старта и соберём маршрут</strong>
-              <a className="button button-large" href="#lead-form">Записаться на бесплатную диагностику →</a>
+              <button className="button button-large" type="button" onClick={openLeadModal}>Записаться на бесплатную диагностику →</button>
             </div>
           </div>
         </section>
@@ -493,7 +449,7 @@ export default function Home() {
               <p className="section-kicker light">Не ждём четверть, чтобы заметить сдвиг</p>
               <h2>Приведём к <span className="marker marker-yellow">первому результату</span> за 3 занятия</h2>
               <p>Выбираем одну понятную цель и показываем движение по ней ребёнку и родителю.</p>
-              <a className="button button-light" href="#lead-form">Выбрать первую цель →</a>
+              <button className="button button-light" type="button" onClick={openLeadModal}>Выбрать первую цель →</button>
             </div>
             <div className="result-steps">
               {[1, 2, 3].map((portrait, index) => {
@@ -519,7 +475,7 @@ export default function Home() {
                     <div className="case-tags"><span>{item.grade}</span><span>{item.subject}</span></div>
                     <h3>{item.title}</h3>
                     <p>{item.route}</p>
-                    <a href="#lead-form">Разобрать нашу ситуацию →</a>
+                    <button className="button case-cta" type="button" onClick={openLeadModal}>Разобрать нашу ситуацию →</button>
                   </div>
                   <b className="case-number">0{index + 1}</b>
                 </article>
@@ -542,7 +498,7 @@ export default function Home() {
                 </article>
               ))}
             </div>
-            <div className="diagnostics-action"><strong>Познакомьтесь с преподавателем до оплаты</strong><a className="button button-light button-large" href="#lead-form">Записаться на диагностику →</a></div>
+            <div className="diagnostics-action"><strong>Познакомьтесь с преподавателем до оплаты</strong><button className="button button-light button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
           </div>
         </section>
 
@@ -553,7 +509,7 @@ export default function Home() {
               <p>Освоенные темы, регулярность, домашние задания, сильные стороны и зоны роста собраны в понятном личном кабинете.</p>
             </div>
             <div className="dashboard-frame">
-              <Image src={assetPath("/progress-dashboard.png")} alt="Пример кабинета с динамикой прогресса ученика" width={1536} height={1024} />
+              <Image src={assetPath("/progress-dashboard.webp")} alt="Пример кабинета с динамикой прогресса ученика" width={1536} height={1024} />
               <div className="progress-sticker"><strong>+36%</strong><span>пример динамики<br />за 8 занятий</span></div>
             </div>
             <div className="progress-benefits">
@@ -567,7 +523,7 @@ export default function Home() {
         <section className="section reports-section">
           <div className="container reports-shell" data-reveal>
             <div className="report-visual">
-              <Image src={assetPath("/parent-report-chat.png")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
+              <Image src={assetPath("/parent-report-chat.webp")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
               <div className="report-avatar"><Image src={tutorPhoto(4)} alt="" width={56} height={56} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
             </div>
             <div className="report-copy">
@@ -588,11 +544,11 @@ export default function Home() {
             <div className="communication-grid">
               <div className="phone-stage">
                 <div className="phone-copy"><span>В приложении</span><h3>Свободное общение с репетитором</h3><p>Вопрос, фотография задания, голосовое объяснение — всё остаётся в диалоге.</p></div>
-                <div className="phone-frame"><Image src={assetPath("/app-tutor-chat.png")} alt="Диалог ученика с репетитором в приложении REDLINE" width={988} height={2048} /></div>
+                <div className="phone-frame"><Image src={assetPath("/app-tutor-chat.webp")} alt="Диалог ученика с репетитором в приложении REDLINE" width={988} height={2048} /></div>
               </div>
               <div className="site-stage">
                 <div><span>На сайте</span><h3>Все чаты и история занятий под рукой</h3><p>Репетитор, поддержка и дополнительные материалы не теряются.</p></div>
-                <Image src={assetPath("/website-chats.png")} alt="Чаты с поддержкой и преподавателями на сайте REDLINE" width={868} height={365} />
+                <Image src={assetPath("/website-chats.webp")} alt="Чаты с поддержкой и преподавателями на сайте REDLINE" width={868} height={365} />
                 <div className="site-features"><b>✓ преподаватель рядом</b><b>✓ материалы в истории</b><b>✓ поддержка помогает</b></div>
               </div>
             </div>
@@ -600,19 +556,18 @@ export default function Home() {
         </section>
 
         <section className="section tutor-section" id="tutors">
-          <div className="container tutor-shell" data-reveal>
-            <div className="tutor-copy">
-              <p className="section-kicker">Молодая команда · живой контакт</p>
-              <h2>Репетиторы-студенты говорят с ребёнком <span className="marker marker-red">на одном языке</span></h2>
-              <p>Наши преподаватели — молодые студенты, которые сами недавно прошли школьную программу. Они помнят сложные места и объясняют без дистанции и стыда за ошибку.</p>
-              <div className="tutor-points"><span>спокойно объясняют</span><span>работают по программе 1–9 классов</span><span>слышат ребёнка</span></div>
-              <a className="button" href="#lead-form">Познакомиться на диагностике →</a>
+          <div className="container" data-reveal>
+            <div className="section-heading heading-row">
+              <div><p className="section-kicker">Молодая команда · строгий отбор</p><h2>Подбираем преподавателя <span className="marker marker-red">под ребёнка</span></h2></div>
+              <p>На диагностике вы знакомитесь именно с будущим преподавателем и проверяете, подходит ли ребёнку его темп и способ объяснения.</p>
             </div>
-            <div className="team-photo" aria-label="Четыре молодых преподавателя REDLINE">
-              <div className="team-portrait-grid">{[1, 2, 3, 4].map((portrait) => <Image key={portrait} src={tutorPhoto(portrait)} alt="" width={520} height={650} sizes="(max-width: 620px) 50vw, 30vw" />)}</div>
-              <div className="team-photo-note">Будущего преподавателя согласуем до первого платного занятия</div>
+            <div className="tutor-criteria">
+              <article><span>01</span><h3>Знает школьную программу</h3><p>Работает по учебнику ученика, закрывает пробелы и помогает двигаться на опережение.</p></article>
+              <article><span>02</span><h3>Объясняет без давления</h3><p>Разбирает ход мысли, задаёт вопросы и помогает ребёнку не бояться ошибок.</p></article>
+              <article><span>03</span><h3>Умеет держать контакт</h3><p>Молодой преподаватель общается на понятном языке, сохраняя структуру и рабочий темп.</p></article>
+              <article><span>04</span><h3>Регулярно отчитывается</h3><p>После занятия фиксирует результат, трудности и следующий шаг для родителя.</p></article>
             </div>
-            <p className="image-disclaimer">Изображения людей созданы для визуализации типажей команды; они не являются карточками конкретных сотрудников.</p>
+            <button className="button tutor-cta" type="button" onClick={openLeadModal}>Познакомиться на диагностике →</button>
           </div>
         </section>
 
@@ -624,33 +579,38 @@ export default function Home() {
             </div>
             <div className="reviews-track" ref={reviewsRef} aria-label="Отзывы родителей">
               {reviews.map((review, index) => <article className="review-card" key={`${review.name}-${index}`}>
-                <div className={`review-avatar review-avatar-${index + 1}`} style={{ backgroundImage: `url(${assetPath("/review-parents-v3.png")})` }} role="img" aria-label="Портрет родителя" />
+                <div className={`review-avatar review-avatar-${index + 1}`} style={{ backgroundImage: `url(${assetPath("/review-parents-v3.webp")})` }} role="img" aria-label="Портрет родителя" />
                 <div><strong>{review.name}</strong><span>{review.meta}</span></div>
                 <p>«{review.text}»</p><b aria-hidden="true">★★★★★</b>
               </article>)}
             </div>
-            <div className="reviews-bottom"><p>Имена и фотографии изменены для конфиденциальности; формулировки отражают типовые отзывы родителей.</p><a className="button button-large" href="#lead-form">Записаться на диагностику →</a></div>
+            <div className="reviews-bottom"><p>Имена и фотографии изменены для конфиденциальности; формулировки отражают типовые отзывы родителей.</p><button className="button button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
           </div>
         </section>
 
         <section className="section price-section" id="price">
           <div className="container price-shell" data-reveal>
-            <div className="price-main"><span>Индивидуально · 60 минут</span><h2>от 900 ₽</h2><p>за одно онлайн-занятие</p><div className="price-note"><strong>Есть пакеты со скидкой</strong><span>Подберём после диагностики без лишних тарифов</span></div></div>
-            <div className="price-copy"><p className="section-kicker light">Без перегруженной тарифной таблицы</p><h3>Сначала определяем цель — потом предлагаем формат</h3><p>Для регулярных занятий есть пакеты со скидкой. После диагностики предложим только подходящий вариант и объясним условия до оплаты.</p><ul><li>план под учебник и цель;</li><li>регулярные отчёты родителю;</li><li>прогресс в личном кабинете;</li><li>замена преподавателя, если не совпали.</li></ul><a className="button button-light" href="#lead-form">Узнать подходящий формат →</a></div>
+            <div className="price-main"><span>Индивидуально · 60 минут</span><h2>от 1 200 ₽</h2><p>за одно онлайн-занятие</p><div className="price-note"><strong>Есть пакеты со скидкой</strong><span>Подберём после диагностики без лишних тарифов</span></div></div>
+            <div className="price-copy"><p className="section-kicker light">Без перегруженной тарифной таблицы</p><h3>Сначала определяем цель — потом предлагаем формат</h3><p>Для регулярных занятий есть пакеты со скидкой. После диагностики предложим только подходящий вариант и объясним условия до оплаты.</p><ul><li>план под учебник и цель;</li><li>регулярные отчёты родителю;</li><li>прогресс в личном кабинете;</li><li>замена преподавателя, если не совпали.</li></ul><button className="button button-light" type="button" onClick={openLeadModal}>Узнать подходящий формат →</button></div>
           </div>
         </section>
 
         <section className="section faq-section" id="faq">
-          <div className="container faq-shell" data-reveal>
-            <div className="faq-intro"><p className="section-kicker">Коротко о важном</p><h2>Вопросы родителей</h2><p>Не нашли свой вопрос? Напишите напрямую.</p><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Задать вопрос в Telegram ↗</a></div>
-            <div className="faq-list">{faqs.map((faq, index) => <details key={faq.question} open={index === 0}><summary><span>{faq.question}</span><i aria-hidden="true">+</i></summary><p>{faq.answer}</p></details>)}</div>
+          <div className="container" data-reveal>
+            <details className="faq-group">
+              <summary className="faq-group-summary"><span><small>Коротко о важном</small><strong>Вопросы родителей</strong></span><i aria-hidden="true">+</i></summary>
+              <div className="faq-shell">
+                <div className="faq-intro"><p>Не нашли свой вопрос? Напишите напрямую.</p><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Задать вопрос в Telegram ↗</a></div>
+                <div className="faq-list">{faqs.map((faq) => <details key={faq.question}><summary><span>{faq.question}</span><i aria-hidden="true">+</i></summary><p>{faq.answer}</p></details>)}</div>
+              </div>
+            </details>
           </div>
         </section>
 
         <section className="final-cta">
           <div className="container final-cta-inner" data-reveal>
             <div><p className="section-kicker light">Первая понятная цель</p><h2>Начните с диагностики — <span className="marker marker-yellow">увидьте результат за 3 занятия</span></h2></div>
-            <div><p>За 30 минут узнаете пробелы, познакомитесь с будущим преподавателем и получите индивидуальный план. Покупать занятия сразу не нужно.</p><a className="button button-light button-large" href="#lead-form">Записаться бесплатно →</a></div>
+            <div><p>За 30 минут узнаете пробелы, познакомитесь с будущим преподавателем и получите индивидуальный план. Покупать занятия сразу не нужно.</p><button className="button button-light button-large" type="button" onClick={openLeadModal}>Записаться бесплатно →</button></div>
           </div>
         </section>
       </main>
@@ -659,35 +619,72 @@ export default function Home() {
         <div className="container footer-grid">
           <div className="footer-brand"><strong>REDLINE</strong><p>Индивидуальные занятия для школьников 1–9 классов.</p></div>
           <div><span>Связаться</span><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
-          <div><span>Документы</span><a href="https://redline-school.github.io/RedLine/index.html#offer" target="_blank" rel="noreferrer">Оферта ↗</a><a href="https://redline-school.github.io/RedLine/index.html#privacy" target="_blank" rel="noreferrer">Конфиденциальность ↗</a></div>
+          <div><span>Документы</span><a href={pagePath("/offer/")}>Оферта</a><a href={pagePath("/privacy/")}>Конфиденциальность</a></div>
           <div><span>Навигация</span><a href="#programs">Продукты</a><a href="#progress">Прогресс</a><a href="#price">Стоимость</a></div>
         </div>
         <div className="container footer-bottom"><span>© 2026 REDLINE</span><span>Онлайн · Россия</span></div>
       </footer>
 
-      <aside className={`floating-review${isVideoExpanded ? " is-expanded" : ""}`} aria-label="Видеоотзыв родителя">
+      {isLeadModalOpen && (
+        <div className="lead-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeLeadModal(); }}>
+          <section className="lead-dialog" role="dialog" aria-modal="true" aria-labelledby="lead-dialog-title">
+            <button ref={modalCloseRef} className="lead-dialog-close" type="button" onClick={closeLeadModal} aria-label="Закрыть форму">×</button>
+            <div className="lead-card" id="lead-form">
+              <div className="lead-card-intro">
+                <span>Бесплатно · 30 минут</span>
+                <h2 id="lead-dialog-title">Найдём пробелы и познакомим с будущим преподавателем</h2>
+                <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}><i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b></div>
+              </div>
+              <form ref={formRef} className="lead-form" onSubmit={submitLead}>
+                <fieldset className="form-step" hidden={formStep !== 1}>
+                  <legend>Расскажите о задаче</legend>
+                  <div className="form-grid">
+                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[1,2,3,4,5,6,7,8,9].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
+                    <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
+                    <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
+                    <button className="button submit-button" type="button" onClick={advanceForm}>Продолжить →</button>
+                  </div>
+                </fieldset>
+                <fieldset className="form-step" hidden={formStep !== 2}>
+                  <legend>Куда отправить подтверждение</legend>
+                  <div className="form-grid contact-grid">
+                    <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
+                    <label><span>Телефон</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
+                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>Telegram по номеру телефона</option></select></label>
+                    <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Записаться бесплатно"}</button>
+                  </div>
+                  <div className="form-meta">
+                    <button className="back-button" type="button" onClick={() => setFormStep(1)}>← Назад</button>
+                    <label className="consent-field"><input type="checkbox" name="consent" required /><span>Согласен(а) на обработку данных по <a href={pagePath("/privacy/")} target="_blank" rel="noreferrer">политике</a></span></label>
+                  </div>
+                </fieldset>
+                {formMessage && <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>{formMessage}{formStatus === "error" && <> <a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Написать в Telegram</a></>}</div>}
+              </form>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {isVideoVisible && <aside className={`floating-review${isVideoExpanded ? " is-expanded" : ""}`} aria-label="Видеоотзыв родителя">
         <div className="floating-review-head">
           <span><b>Видеоотзыв родителя</b><small>о занятиях в REDLINE</small></span>
-          {isVideoExpanded && <button type="button" onClick={() => toggleParentVideo(false)} aria-label="Свернуть видеоотзыв">×</button>}
+          <button type="button" onClick={() => { setIsVideoVisible(false); setIsVideoExpanded(false); }} aria-label="Закрыть видеоотзыв">×</button>
         </div>
         <div className="floating-review-media">
-          <video
+          {isVideoExpanded ? <video
             ref={parentVideoRef}
             src={assetPath("/parent-review-video.mp4")}
             autoPlay
-            muted={!isVideoExpanded}
-            loop={!isVideoExpanded}
             playsInline
-            preload="metadata"
-            controls={isVideoExpanded}
+            preload="none"
+            controls
           >
             <track kind="captions" src={assetPath("/parent-review-captions.vtt")} srcLang="ru" label="Русские субтитры" />
-          </video>
-          {!isVideoExpanded && <button type="button" className="floating-review-open" onClick={() => toggleParentVideo(true)} aria-label="Открыть видеоотзыв родителя"><span aria-hidden="true">▶</span><b>Смотреть отзыв</b></button>}
+          </video> : <button type="button" className="floating-review-open" onClick={() => toggleParentVideo(true)} aria-label="Открыть видеоотзыв родителя"><span aria-hidden="true">▶</span><b>Смотреть отзыв</b></button>}
         </div>
-      </aside>
+      </aside>}
 
-      <a className="mobile-sticky" href="#lead-form">Бесплатная диагностика <span>→</span></a>
+      <button className="mobile-sticky" type="button" onClick={openLeadModal}>Бесплатная диагностика <span>→</span></button>
     </>
   );
 }

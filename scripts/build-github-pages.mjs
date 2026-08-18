@@ -57,5 +57,26 @@ await rm(resolve(pagesDirectory, "landing.redline"), { recursive: true, force: t
 await writeFile(resolve(pagesDirectory, "index.html"), await response.text(), "utf8");
 await writeFile(resolve(pagesDirectory, ".nojekyll"), "", "utf8");
 
+for (const route of ["offer", "privacy"]) {
+  const routeResponse = await worker.fetch(
+    new Request(`https://redline-school.github.io/landing.redline/${route}`, {
+      headers: { accept: "text/html" },
+    }),
+    {
+      ASSETS: {
+        fetch: async () => new Response("Not found", { status: 404 }),
+      },
+    },
+    {
+      waitUntil() {},
+      passThroughOnException() {},
+    },
+  );
+  if (!routeResponse.ok) throw new Error(`GitHub Pages render failed for /${route}/ with status ${routeResponse.status}`);
+  const routeDirectory = resolve(pagesDirectory, route);
+  await mkdir(routeDirectory, { recursive: true });
+  await writeFile(resolve(routeDirectory, "index.html"), await routeResponse.text(), "utf8");
+}
+
 console.log("GitHub Pages bundle created in dist/pages");
 

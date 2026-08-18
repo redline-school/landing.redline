@@ -35,15 +35,28 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /<title>REDLINE<\/title>/i);
   assert.match(html, /Индивидуальные занятия с репетитором/);
   assert.match(html, /1–9 классов/);
-  assert.match(html, /Найдём пробелы/);
-  assert.match(html, /от 900 ₽/i);
+  assert.doesNotMatch(html, /Найдём пробелы/);
+  assert.match(html, /от 1 200 ₽/i);
   assert.match(html, /tutor-1-v4\.jpg/);
-  assert.match(html, /parent-review-video\.mp4/);
+  assert.doesNotMatch(html, /parent-review-video\.mp4/);
   assert.doesNotMatch(html, /\/_next\/image\?url=/);
   assert.match(html, /первого измеримого результата/i);
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
-  assert.match(html, /камера не нужна/i);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
+  assert.doesNotMatch(html, /href="#lead-form"/);
+});
+
+test("renders local offer and privacy pages", async () => {
+  const worker = await loadWorker();
+  const [offerResponse, privacyResponse] = await Promise.all([
+    worker.fetch(new Request("http://localhost/offer", { headers: { accept: "text/html" } }), environment, executionContext),
+    worker.fetch(new Request("http://localhost/privacy", { headers: { accept: "text/html" } }), environment, executionContext),
+  ]);
+
+  assert.equal(offerResponse.status, 200);
+  assert.equal(privacyResponse.status, 200);
+  assert.match(await offerResponse.text(), /Публичная оферта/i);
+  assert.match(await privacyResponse.text(), /Политика обработки персональных данных/i);
 });
 
 test("lead endpoint rejects incomplete requests before contacting the CRM", async () => {
@@ -91,20 +104,24 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(page, /redline-4-8\.pahanchic52\.chatgpt\.site\/api\/lead/);
   assert.match(page, /type="checkbox" name="consent" required/);
   assert.match(page, /можно отказаться/i);
-  assert.match(page, /молодые студенты/i);
+  assert.match(page, /Будущий преподаватель ребёнка/i);
   assert.match(page, /Олимпиадная подготовка/i);
   assert.match(page, /Подготовка к ОГЭ/i);
-  assert.match(page, /review-parents-v3\.png/);
-  assert.match(page, /app-tutor-chat\.png/);
-  assert.match(page, /progress-dashboard\.png/);
+  assert.match(page, /review-parents-v3\.webp/);
+  assert.match(page, /app-tutor-chat\.webp/);
+  assert.match(page, /progress-dashboard\.webp/);
+  assert.match(page, /pagePath\("\/offer\/"\)/);
+  assert.match(page, /pagePath\("\/privacy\/"\)/);
+  assert.match(page, /role="dialog"/);
+  assert.match(page, /parent-review-video\.mp4/);
   assert.match(route, /GOOGLE_SCRIPT_URL/);
   assert.match(route, /digits\.length < 10/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /@media \(max-width: 620px\)/);
 
   for (const path of [
-    "../public/hero-community-v3.png",
-    "../public/product-pair-v3.png",
+    "../public/hero-community-v3.webp",
+    "../public/product-pair-v3.webp",
     "../public/tutor-1-v4.jpg",
     "../public/tutor-2-v4.jpg",
     "../public/tutor-3-v4.jpg",
@@ -112,9 +129,9 @@ test("keeps the generated campaign assets and production form wiring", async () 
     "../public/case-student-1-v4.jpg",
     "../public/case-student-2-v4.jpg",
     "../public/case-student-3-v4.jpg",
-    "../public/review-parents-v3.png",
-    "../public/progress-dashboard.png",
-    "../public/app-tutor-chat.png",
+    "../public/review-parents-v3.webp",
+    "../public/progress-dashboard.webp",
+    "../public/app-tutor-chat.webp",
     "../public/og-v2.png",
     "../public/favicon-v2.png",
     "../public/parent-review-video.mp4",
@@ -124,6 +141,12 @@ test("keeps the generated campaign assets and production form wiring", async () 
     assert.ok((await stat(asset)).size > 50_000, `${path} should be a real image asset`);
   }
 
+  const favicon = new URL("../public/favicon.ico", import.meta.url);
+  await access(favicon);
+  assert.ok((await stat(favicon)).size > 1_000, "favicon.ico should contain multiple icon sizes");
+
   await access(new URL("../public/redline-logo-user.png", import.meta.url));
+  await access(new URL("../content/offer.txt", import.meta.url));
+  await access(new URL("../content/privacy.txt", import.meta.url));
 });
 
