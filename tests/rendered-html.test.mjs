@@ -32,7 +32,7 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>REDLINE<\/title>/i);
+  assert.match(html, /<title>REDLINE — репетиторы для школьников 1–9 классов<\/title>/i);
   assert.match(html, /Индивидуальные занятия с репетитором/);
   assert.match(html, /1–9 классов/);
   assert.doesNotMatch(html, /Найдём пробелы/);
@@ -44,6 +44,9 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
   assert.doesNotMatch(html, /href="#lead-form"/);
+  assert.doesNotMatch(html, /изменены для конфиденциальности|типовые отзывы|не вымышленные отзывы/i);
+  assert.match(html, /redline-favicon-20260818\.ico/);
+  assert.match(html, /rel="canonical" href="https:\/\/landing\.redline-tutors\.ru\/"/);
 });
 
 test("renders local offer and privacy pages", async () => {
@@ -141,9 +144,11 @@ test("keeps the generated campaign assets and production form wiring", async () 
     assert.ok((await stat(asset)).size > 50_000, `${path} should be a real image asset`);
   }
 
-  const favicon = new URL("../public/favicon.ico", import.meta.url);
+  const favicon = new URL("../public/redline-favicon-20260818.ico", import.meta.url);
   await access(favicon);
   assert.ok((await stat(favicon)).size > 1_000, "favicon.ico should contain multiple icon sizes");
+  await access(new URL("../public/robots.txt", import.meta.url));
+  await access(new URL("../public/sitemap.xml", import.meta.url));
 
   await access(new URL("../public/redline-logo-user.png", import.meta.url));
   await access(new URL("../content/offer.txt", import.meta.url));

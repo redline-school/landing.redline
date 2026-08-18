@@ -3239,6 +3239,20 @@ summary:focus-visible {
   gap: 40px;
 }
 
+.result-intro {
+  min-width: 0;
+}
+
+.result-intro h2 {
+  max-width: 100%;
+  font-size: clamp(42px, 3.4vw, 54px);
+  overflow-wrap: break-word;
+}
+
+.result-intro .marker {
+  white-space: normal;
+}
+
 .result-steps {
   min-width: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3257,6 +3271,10 @@ summary:focus-visible {
   margin-top: 20px;
   padding-inline: 16px;
   font-size: 11px;
+}
+
+.reviews-bottom {
+  justify-content: flex-end;
 }
 
 .phone-stage {

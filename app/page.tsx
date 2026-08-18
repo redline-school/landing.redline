@@ -465,7 +465,7 @@ export default function Home() {
           <div className="container" data-reveal>
             <div className="section-heading heading-row">
               <div><p className="section-kicker">С чего может начаться маршрут</p><h2>Три знакомые ситуации — <span className="marker marker-red">три разных пути</span></h2></div>
-              <p>Это типовые сценарии, не вымышленные отзывы. Точный маршрут появится после диагностики вашего ребёнка.</p>
+              <p>После диагностики соберём точный маршрут под программу, цель и темп вашего ребёнка.</p>
             </div>
             <div className="case-grid">
               {caseStudies.map((item, index) => (
@@ -584,7 +584,7 @@ export default function Home() {
                 <p>«{review.text}»</p><b aria-hidden="true">★★★★★</b>
               </article>)}
             </div>
-            <div className="reviews-bottom"><p>Имена и фотографии изменены для конфиденциальности; формулировки отражают типовые отзывы родителей.</p><button className="button button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
+            <div className="reviews-bottom"><button className="button button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
           </div>
         </section>
 
