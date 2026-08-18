@@ -36,7 +36,7 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /Индивидуальные занятия с репетитором/);
   assert.match(html, /1–9 классов/);
   assert.doesNotMatch(html, /Найдём пробелы/);
-  assert.match(html, /от 1 200 ₽/i);
+  assert.match(html, /от 900 ₽/i);
   assert.match(html, /tutor-1-v4\.jpg/);
   assert.doesNotMatch(html, /parent-review-video\.mp4/);
   assert.doesNotMatch(html, /\/_next\/image\?url=/);
@@ -58,7 +58,10 @@ test("renders local offer and privacy pages", async () => {
 
   assert.equal(offerResponse.status, 200);
   assert.equal(privacyResponse.status, 200);
-  assert.match(await offerResponse.text(), /Публичная оферта/i);
+  const offerHtml = await offerResponse.text();
+  assert.match(offerHtml, /Публичная оферта/i);
+  assert.match(offerHtml, /от 900 \(девятисот\) рублей/i);
+  assert.doesNotMatch(offerHtml, /1 200|двухсот/i);
   assert.match(await privacyResponse.text(), /Политика обработки персональных данных/i);
 });
 
