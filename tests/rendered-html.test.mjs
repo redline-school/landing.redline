@@ -35,7 +35,8 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /<title>REDLINE — репетиторы для школьников 1–9 классов<\/title>/i);
   assert.match(html, /Индивидуальные занятия с репетитором/);
   assert.match(html, /1–9 классов/);
-  assert.doesNotMatch(html, /Найдём пробелы/);
+  assert.match(html, /id="hero-lead-form"/);
+  assert.match(html, /Найдём пробелы/);
   assert.match(html, /от 900 ₽/i);
   assert.match(html, /tutor-1-v4\.jpg/);
   assert.doesNotMatch(html, /parent-review-video\.mp4/);

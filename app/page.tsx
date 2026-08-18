@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const ASSET_VERSION = "20260818-2";
+const ASSET_VERSION = "20260818-3";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
 const pagePath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
 const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
@@ -195,7 +195,6 @@ export default function Home() {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(true);
-  const formRef = useRef<HTMLFormElement>(null);
   const reviewsRef = useRef<HTMLDivElement>(null);
   const parentVideoRef = useRef<HTMLVideoElement>(null);
   const modalCloseRef = useRef<HTMLButtonElement>(null);
@@ -277,8 +276,7 @@ export default function Home() {
     };
   }, []);
 
-  function advanceForm() {
-    const form = formRef.current;
+  function advanceForm(form: HTMLFormElement | null) {
     if (!form) return;
 
     const controls = ["grade", "subject", "goal"].map((name) =>
@@ -298,7 +296,7 @@ export default function Home() {
     if (formStatus === "loading") return;
 
     if (leadMode === "full" && formStep === 1) {
-      advanceForm();
+      advanceForm(event.currentTarget);
       return;
     }
 
@@ -404,7 +402,7 @@ export default function Home() {
                 <strong>Бесплатная диагностика за 30 минут</strong> + индивидуальный план
               </p>
               <div className="hero-actions">
-                <button className="button button-light button-large" type="button" onClick={openFullLeadModal}>
+                <button className="button button-light button-large" type="button" onClick={() => document.getElementById("hero-lead-form")?.scrollIntoView({ behavior: "smooth", block: "center" })}>
                   Записаться бесплатно <span aria-hidden="true">→</span>
                 </button>
               </div>
@@ -424,6 +422,40 @@ export default function Home() {
                 height={1536}
                 priority
               />
+            </div>
+          </div>
+          <div className="container hero-form-wrap" data-reveal>
+            <div className="lead-card" id="hero-lead-form">
+              <div className="lead-card-intro">
+                <span>Бесплатно · 30 минут</span>
+                <h2>Найдём пробелы и познакомим с будущим преподавателем</h2>
+                <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}><i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b></div>
+              </div>
+              <form className="lead-form" onSubmit={submitLead}>
+                <fieldset className="form-step" hidden={formStep !== 1}>
+                  <legend>Расскажите о задаче</legend>
+                  <div className="form-grid">
+                    <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[1,2,3,4,5,6,7,8,9].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
+                    <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
+                    <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
+                    <button className="button submit-button" type="button" onClick={(event) => advanceForm(event.currentTarget.form)}>Продолжить →</button>
+                  </div>
+                </fieldset>
+                <fieldset className="form-step" hidden={formStep !== 2}>
+                  <legend>Куда отправить подтверждение</legend>
+                  <div className="form-grid contact-grid">
+                    <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
+                    <label><span>Телефон</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
+                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>MAX по номеру телефона</option><option>Корпоративная почта</option><option>Telegram по номеру телефона</option></select></label>
+                    <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Записаться бесплатно"}</button>
+                  </div>
+                  <div className="form-meta">
+                    <button className="back-button" type="button" onClick={() => setFormStep(1)}>← Назад</button>
+                    <label className="consent-field"><input type="checkbox" name="consent" required /><span>Согласен(а) на обработку данных по <a href={pagePath("/privacy/")} target="_blank" rel="noreferrer">политике</a></span></label>
+                  </div>
+                </fieldset>
+                {formMessage && <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>{formMessage}{formStatus === "error" && <span className="form-help-links"><a href="https://max.ru/u/f9LHodD0cOI79gw-bFpmURvrIpw2Z6PtezR8iU3b3_Ecm21xyqyhb6J8tsc" target="_blank" rel="noreferrer">MAX</a><a href="mailto:team@redline-school.ru">Почта</a><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram</a></span>}</div>}
+              </form>
             </div>
           </div>
         </section>
@@ -661,7 +693,7 @@ export default function Home() {
                 <h2 id="lead-dialog-title">{leadMode === "full" ? "Найдём пробелы и познакомим с будущим преподавателем" : "Запишитесь на бесплатную диагностику"}</h2>
                 {leadMode === "full" && <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}><i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b></div>}
               </div>
-              <form ref={formRef} className="lead-form" onSubmit={submitLead}>
+              <form className="lead-form" onSubmit={submitLead}>
                 {leadMode === "full" ? <>
                 <fieldset className="form-step" hidden={formStep !== 1}>
                   <legend>Расскажите о задаче</legend>
@@ -669,7 +701,7 @@ export default function Home() {
                     <label><span>Класс</span><select name="grade" defaultValue="" required><option value="" disabled>Выберите</option>{[1,2,3,4,5,6,7,8,9].map((grade) => <option value={`${grade} класс`} key={grade}>{grade} класс</option>)}</select></label>
                     <label><span>Предмет</span><select name="subject" defaultValue="" required><option value="" disabled>Выберите</option><option>Математика</option><option>Русский язык</option><option>Физика</option></select></label>
                     <label className="goal-field"><span>Цель</span><select name="goal" defaultValue="" required><option value="" disabled>Что важно сейчас?</option>{goals.map((goal) => <option value={goal} key={goal}>{goal}</option>)}</select></label>
-                    <button className="button submit-button" type="button" onClick={advanceForm}>Продолжить →</button>
+                    <button className="button submit-button" type="button" onClick={(event) => advanceForm(event.currentTarget.form)}>Продолжить →</button>
                   </div>
                 </fieldset>
                 <fieldset className="form-step" hidden={formStep !== 2}>

@@ -3743,6 +3743,16 @@ summary:focus-visible {
   background: var(--white);
 }
 
+.phone-frame {
+  top: 300px;
+  bottom: auto;
+  height: 700px;
+}
+
+.phone-stage:hover .phone-frame {
+  transform: rotate(0deg);
+}
+
 .contact-options > div {
   display: grid;
   gap: 4px;
