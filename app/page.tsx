@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const ASSET_VERSION = "20260818-1";
+const ASSET_VERSION = "20260818-2";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
 const pagePath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
 const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
@@ -20,6 +20,7 @@ const goals = [
 ];
 
 type FormStatus = "idle" | "loading" | "success" | "error";
+type LeadMode = "full" | "quick";
 
 const products = [
   {
@@ -29,6 +30,8 @@ const products = [
     className: "primary",
     text: "Работаем по программе и учебнику ученика: закрываем пробелы, идём на опережение, готовимся к контрольным и самостоятельным.",
     result: "Результат: увереннее отвечает и повышает оценки",
+    image: "/product-pair-v3.webp",
+    imageAlt: "Молодой преподаватель помогает школьнику разобраться с заданием",
   },
   {
     number: "02",
@@ -37,6 +40,8 @@ const products = [
     className: "dark",
     text: "Развиваем нестандартное мышление и готовим к школьным олимпиадам разного уровня — от первых задач до уверенного участия.",
     result: "Результат: видит идеи, а не перебирает формулы",
+    image: "/product-olympiad-v1.webp",
+    imageAlt: "Молодой преподаватель разбирает олимпиадную задачу со школьницей",
   },
   {
     number: "03",
@@ -45,6 +50,8 @@ const products = [
     className: "light",
     text: "Готовим к годовым контрольным, аттестации и поступлению в другую школу: определяем темы, сроки и собираем понятный план.",
     result: "Результат: системная подготовка без аврала",
+    image: "/product-transfer-v1.webp",
+    imageAlt: "Молодой преподаватель составляет план подготовки со школьником",
   },
   {
     number: "04",
@@ -53,6 +60,8 @@ const products = [
     className: "exam",
     text: "Выстраиваем подготовку от диагностики тем до пробников: закрываем пробелы, разбираем формат и учимся распределять время.",
     result: "Результат: понятный план и стабильнее баллы на пробниках",
+    image: "/product-oge-v1.webp",
+    imageAlt: "Молодой преподаватель проверяет пробный экзамен со школьником",
   },
   {
     number: "05",
@@ -61,6 +70,8 @@ const products = [
     className: "seasonal",
     text: "Точечно разбираем формат, типовые задания и слабые темы. Сейчас этот продукт доступен, но не является главным фокусом сезона.",
     result: "Результат: знакомый формат и меньше тревоги",
+    image: "/product-vpr-v1.webp",
+    imageAlt: "Молодой преподаватель готовит школьницу к проверочной работе",
   },
 ];
 
@@ -179,6 +190,7 @@ const faqs = [
 export default function Home() {
   const [formStep, setFormStep] = useState<1 | 2>(1);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
+  const [leadMode, setLeadMode] = useState<LeadMode>("quick");
   const [formMessage, setFormMessage] = useState("");
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
@@ -202,10 +214,20 @@ export default function Home() {
     else video.pause();
   }
 
-  function openLeadModal() {
+  function openLeadModal(mode: LeadMode) {
+    setLeadMode(mode);
+    setFormStep(1);
     setFormStatus("idle");
     setFormMessage("");
     setIsLeadModalOpen(true);
+  }
+
+  function openQuickLeadModal() {
+    openLeadModal("quick");
+  }
+
+  function openFullLeadModal() {
+    openLeadModal("full");
   }
 
   function closeLeadModal() {
@@ -275,7 +297,7 @@ export default function Home() {
     event.preventDefault();
     if (formStatus === "loading") return;
 
-    if (formStep === 1) {
+    if (leadMode === "full" && formStep === 1) {
       advanceForm();
       return;
     }
@@ -311,12 +333,12 @@ export default function Home() {
       const payload = {
         parent_name: String(data.get("parent_name") || "").trim(),
         phone,
-        contact_method: String(data.get("contact_method") || ""),
-        grade: String(data.get("grade") || ""),
-        subject: String(data.get("subject") || ""),
-        goal: String(data.get("goal") || ""),
-        consent: data.get("consent") === "on",
-        source: "redline_landing_1_9",
+        contact_method: String(data.get("contact_method") || "Телефонный звонок"),
+        grade: String(data.get("grade") || "Уточнить при звонке"),
+        subject: String(data.get("subject") || "Уточнить при звонке"),
+        goal: String(data.get("goal") || "Быстрая заявка на диагностику"),
+        consent: leadMode === "quick" || data.get("consent") === "on",
+        source: leadMode === "quick" ? "redline_landing_quick" : "redline_landing_1_9",
         page_url: window.location.href,
         ...campaign,
       };
@@ -342,7 +364,7 @@ export default function Home() {
       setFormStep(1);
     } catch {
       setFormStatus("error");
-      setFormMessage("Не получилось отправить заявку. Попробуйте ещё раз или напишите в Telegram.");
+      setFormMessage("Не получилось отправить заявку. Попробуйте ещё раз или свяжитесь с нами напрямую.");
     }
   }
 
@@ -363,7 +385,7 @@ export default function Home() {
             <a href="#tutors">Репетиторы</a>
             <a href="#price">Стоимость</a>
           </nav>
-          <button className="button button-small header-cta" type="button" onClick={openLeadModal}>Записаться на диагностику</button>
+          <button className="button button-small header-cta" type="button" onClick={openQuickLeadModal}>Записаться на диагностику</button>
         </div>
       </header>
 
@@ -382,7 +404,7 @@ export default function Home() {
                 <strong>Бесплатная диагностика за 30 минут</strong> + индивидуальный план
               </p>
               <div className="hero-actions">
-                <button className="button button-light button-large" type="button" onClick={openLeadModal}>
+                <button className="button button-light button-large" type="button" onClick={openFullLeadModal}>
                   Записаться бесплатно <span aria-hidden="true">→</span>
                 </button>
               </div>
@@ -429,16 +451,14 @@ export default function Home() {
                   <h3>{product.title}</h3>
                   <p>{product.text}</p>
                   <strong>{product.result}</strong>
-                  {product.className === "primary" && (
-                    <Image className="product-people" src={assetPath("/product-pair-v3.webp")} alt="Молодой преподаватель помогает школьнику разобраться с заданием" width={1024} height={1536} />
-                  )}
+                  <Image className="product-people" src={assetPath(product.image)} alt={product.imageAlt} width={1024} height={1536} sizes="(max-width: 620px) 310px, 430px" />
                 </article>
               ))}
             </div>
             <div className="diagnosis-promo">
               <span>Не знаете, какой формат выбрать?</span>
               <strong>За 30 минут найдём точку старта и соберём маршрут</strong>
-              <button className="button button-large" type="button" onClick={openLeadModal}>Записаться на бесплатную диагностику →</button>
+              <button className="button button-large" type="button" onClick={openQuickLeadModal}>Записаться на бесплатную диагностику →</button>
             </div>
           </div>
         </section>
@@ -449,7 +469,7 @@ export default function Home() {
               <p className="section-kicker light">Не ждём четверть, чтобы заметить сдвиг</p>
               <h2>Приведём к <span className="marker marker-yellow">первому результату</span> за 3 занятия</h2>
               <p>Выбираем одну понятную цель и показываем движение по ней ребёнку и родителю.</p>
-              <button className="button button-light" type="button" onClick={openLeadModal}>Выбрать первую цель →</button>
+              <button className="button button-light" type="button" onClick={openQuickLeadModal}>Выбрать первую цель →</button>
             </div>
             <div className="result-steps">
               {[1, 2, 3].map((portrait, index) => {
@@ -475,7 +495,7 @@ export default function Home() {
                     <div className="case-tags"><span>{item.grade}</span><span>{item.subject}</span></div>
                     <h3>{item.title}</h3>
                     <p>{item.route}</p>
-                    <button className="button case-cta" type="button" onClick={openLeadModal}>Разобрать нашу ситуацию →</button>
+                    <button className="button case-cta" type="button" onClick={openQuickLeadModal}>Разобрать нашу ситуацию →</button>
                   </div>
                   <b className="case-number">0{index + 1}</b>
                 </article>
@@ -498,7 +518,7 @@ export default function Home() {
                 </article>
               ))}
             </div>
-            <div className="diagnostics-action"><strong>Познакомьтесь с преподавателем до оплаты</strong><button className="button button-light button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
+            <div className="diagnostics-action"><strong>Познакомьтесь с преподавателем до оплаты</strong><button className="button button-light button-large" type="button" onClick={openQuickLeadModal}>Записаться на диагностику →</button></div>
           </div>
         </section>
 
@@ -552,6 +572,12 @@ export default function Home() {
                 <div className="site-features"><b>✓ преподаватель рядом</b><b>✓ материалы в истории</b><b>✓ поддержка помогает</b></div>
               </div>
             </div>
+            <div className="contact-options" aria-label="Другие способы связи">
+              <div><span>Можно связаться напрямую</span><strong>Выберите удобный канал — Telegram не единственный вариант</strong></div>
+              <a href="https://max.ru/u/f9LHodD0cOI79gw-bFpmURvrIpw2Z6PtezR8iU3b3_Ecm21xyqyhb6J8tsc" target="_blank" rel="noreferrer">MAX ↗</a>
+              <a href="mailto:team@redline-school.ru">team@redline-school.ru</a>
+              <a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a>
+            </div>
           </div>
         </section>
 
@@ -567,7 +593,7 @@ export default function Home() {
               <article><span>03</span><h3>Умеет держать контакт</h3><p>Молодой преподаватель общается на понятном языке, сохраняя структуру и рабочий темп.</p></article>
               <article><span>04</span><h3>Регулярно отчитывается</h3><p>После занятия фиксирует результат, трудности и следующий шаг для родителя.</p></article>
             </div>
-            <button className="button tutor-cta" type="button" onClick={openLeadModal}>Познакомиться на диагностике →</button>
+            <button className="button tutor-cta" type="button" onClick={openQuickLeadModal}>Познакомиться на диагностике →</button>
           </div>
         </section>
 
@@ -584,14 +610,14 @@ export default function Home() {
                 <p>«{review.text}»</p><b aria-hidden="true">★★★★★</b>
               </article>)}
             </div>
-            <div className="reviews-bottom"><button className="button button-large" type="button" onClick={openLeadModal}>Записаться на диагностику →</button></div>
+            <div className="reviews-bottom"><button className="button button-large" type="button" onClick={openQuickLeadModal}>Записаться на диагностику →</button></div>
           </div>
         </section>
 
         <section className="section price-section" id="price">
           <div className="container price-shell" data-reveal>
             <div className="price-main"><span>Индивидуально · 60 минут</span><h2>от 900 ₽</h2><p>за одно онлайн-занятие</p><div className="price-note"><strong>Есть пакеты со скидкой</strong><span>Подберём после диагностики без лишних тарифов</span></div></div>
-            <div className="price-copy"><p className="section-kicker light">Без перегруженной тарифной таблицы</p><h3>Сначала определяем цель — потом предлагаем формат</h3><p>Для регулярных занятий есть пакеты со скидкой. После диагностики предложим только подходящий вариант и объясним условия до оплаты.</p><ul><li>план под учебник и цель;</li><li>регулярные отчёты родителю;</li><li>прогресс в личном кабинете;</li><li>замена преподавателя, если не совпали.</li></ul><button className="button button-light" type="button" onClick={openLeadModal}>Узнать подходящий формат →</button></div>
+            <div className="price-copy"><p className="section-kicker light">Без перегруженной тарифной таблицы</p><h3>Сначала определяем цель — потом предлагаем формат</h3><p>Для регулярных занятий есть пакеты со скидкой. После диагностики предложим только подходящий вариант и объясним условия до оплаты.</p><ul><li>план под учебник и цель;</li><li>регулярные отчёты родителю;</li><li>прогресс в личном кабинете;</li><li>замена преподавателя, если не совпали.</li></ul><button className="button button-light" type="button" onClick={openQuickLeadModal}>Узнать подходящий формат →</button></div>
           </div>
         </section>
 
@@ -600,7 +626,7 @@ export default function Home() {
             <details className="faq-group">
               <summary className="faq-group-summary"><span><small>Коротко о важном</small><strong>Вопросы родителей</strong></span><i aria-hidden="true">+</i></summary>
               <div className="faq-shell">
-                <div className="faq-intro"><p>Не нашли свой вопрос? Напишите напрямую.</p><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Задать вопрос в Telegram ↗</a></div>
+                <div className="faq-intro"><p>Не нашли свой вопрос? Напишите напрямую.</p><a href="https://max.ru/u/f9LHodD0cOI79gw-bFpmURvrIpw2Z6PtezR8iU3b3_Ecm21xyqyhb6J8tsc" target="_blank" rel="noreferrer">Написать в MAX ↗</a><a href="mailto:team@redline-school.ru">team@redline-school.ru</a><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
                 <div className="faq-list">{faqs.map((faq) => <details key={faq.question}><summary><span>{faq.question}</span><i aria-hidden="true">+</i></summary><p>{faq.answer}</p></details>)}</div>
               </div>
             </details>
@@ -610,7 +636,7 @@ export default function Home() {
         <section className="final-cta">
           <div className="container final-cta-inner" data-reveal>
             <div><p className="section-kicker light">Первая понятная цель</p><h2>Начните с диагностики — <span className="marker marker-yellow">увидьте результат за 3 занятия</span></h2></div>
-            <div><p>За 30 минут узнаете пробелы, познакомитесь с будущим преподавателем и получите индивидуальный план. Покупать занятия сразу не нужно.</p><button className="button button-light button-large" type="button" onClick={openLeadModal}>Записаться бесплатно →</button></div>
+            <div><p>За 30 минут узнаете пробелы, познакомитесь с будущим преподавателем и получите индивидуальный план. Покупать занятия сразу не нужно.</p><button className="button button-light button-large" type="button" onClick={openFullLeadModal}>Записаться бесплатно →</button></div>
           </div>
         </section>
       </main>
@@ -618,7 +644,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="container footer-grid">
           <div className="footer-brand"><strong>REDLINE</strong><p>Индивидуальные занятия для школьников 1–9 классов.</p></div>
-          <div><span>Связаться</span><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
+          <div><span>Связаться</span><a href="https://max.ru/u/f9LHodD0cOI79gw-bFpmURvrIpw2Z6PtezR8iU3b3_Ecm21xyqyhb6J8tsc" target="_blank" rel="noreferrer">MAX ↗</a><a href="mailto:team@redline-school.ru">Почта</a><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram ↗</a></div>
           <div><span>Документы</span><a href={pagePath("/offer/")}>Оферта</a><a href={pagePath("/privacy/")}>Конфиденциальность</a></div>
           <div><span>Навигация</span><a href="#programs">Продукты</a><a href="#progress">Прогресс</a><a href="#price">Стоимость</a></div>
         </div>
@@ -629,13 +655,14 @@ export default function Home() {
         <div className="lead-modal" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeLeadModal(); }}>
           <section className="lead-dialog" role="dialog" aria-modal="true" aria-labelledby="lead-dialog-title">
             <button ref={modalCloseRef} className="lead-dialog-close" type="button" onClick={closeLeadModal} aria-label="Закрыть форму">×</button>
-            <div className="lead-card" id="lead-form">
+            <div className={`lead-card ${leadMode === "quick" ? "quick-lead-card" : ""}`} id="lead-form">
               <div className="lead-card-intro">
                 <span>Бесплатно · 30 минут</span>
-                <h2 id="lead-dialog-title">Найдём пробелы и познакомим с будущим преподавателем</h2>
-                <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}><i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b></div>
+                <h2 id="lead-dialog-title">{leadMode === "full" ? "Найдём пробелы и познакомим с будущим преподавателем" : "Запишитесь на бесплатную диагностику"}</h2>
+                {leadMode === "full" && <div className="form-progress" aria-label={`Шаг ${formStep} из 2`}><i className="active" /><i className={formStep === 2 ? "active" : ""} /><b>{formStep}/2</b></div>}
               </div>
               <form ref={formRef} className="lead-form" onSubmit={submitLead}>
+                {leadMode === "full" ? <>
                 <fieldset className="form-step" hidden={formStep !== 1}>
                   <legend>Расскажите о задаче</legend>
                   <div className="form-grid">
@@ -650,7 +677,7 @@ export default function Home() {
                   <div className="form-grid contact-grid">
                     <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
                     <label><span>Телефон</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
-                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>Telegram по номеру телефона</option></select></label>
+                    <label><span>Как связаться</span><select name="contact_method" defaultValue="Телефонный звонок"><option>Телефонный звонок</option><option>MAX по номеру телефона</option><option>Корпоративная почта</option><option>Telegram по номеру телефона</option></select></label>
                     <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Записаться бесплатно"}</button>
                   </div>
                   <div className="form-meta">
@@ -658,7 +685,16 @@ export default function Home() {
                     <label className="consent-field"><input type="checkbox" name="consent" required /><span>Согласен(а) на обработку данных по <a href={pagePath("/privacy/")} target="_blank" rel="noreferrer">политике</a></span></label>
                   </div>
                 </fieldset>
-                {formMessage && <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>{formMessage}{formStatus === "error" && <> <a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Написать в Telegram</a></>}</div>}
+                </> : <fieldset className="form-step quick-form-step">
+                  <legend>Оставьте контакты — уточним класс, предмет и удобное время</legend>
+                  <div className="quick-form-grid">
+                    <label><span>Ваше имя</span><input name="parent_name" type="text" autoComplete="name" minLength={2} placeholder="Например, Анна" required /></label>
+                    <label><span>Номер телефона</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 999 000-00-00" required /></label>
+                    <button className="button submit-button" type="submit" disabled={formStatus === "loading"}>{formStatus === "loading" ? "Отправляем…" : "Отправить"}</button>
+                  </div>
+                  <p className="quick-consent">Нажимая «Отправить», вы соглашаетесь с <a href={pagePath("/privacy/")} target="_blank" rel="noreferrer">политикой обработки данных</a>.</p>
+                </fieldset>}
+                {formMessage && <div className={`form-message ${formStatus}`} role={formStatus === "error" ? "alert" : "status"}>{formMessage}{formStatus === "error" && <span className="form-help-links"><a href="https://max.ru/u/f9LHodD0cOI79gw-bFpmURvrIpw2Z6PtezR8iU3b3_Ecm21xyqyhb6J8tsc" target="_blank" rel="noreferrer">MAX</a><a href="mailto:team@redline-school.ru">Почта</a><a href="https://t.me/managerRL" target="_blank" rel="noreferrer">Telegram</a></span>}</div>}
               </form>
             </div>
           </section>
@@ -684,7 +720,7 @@ export default function Home() {
         </div>
       </aside>}
 
-      <button className="mobile-sticky" type="button" onClick={openLeadModal}>Бесплатная диагностика <span>→</span></button>
+      <button className="mobile-sticky" type="button" onClick={openQuickLeadModal}>Бесплатная диагностика <span>→</span></button>
     </>
   );
 }

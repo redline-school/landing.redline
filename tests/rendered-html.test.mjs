@@ -120,6 +120,12 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(page, /pagePath\("\/privacy\/"\)/);
   assert.match(page, /role="dialog"/);
   assert.match(page, /parent-review-video\.mp4/);
+  assert.match(page, /openFullLeadModal/);
+  assert.match(page, /openQuickLeadModal/);
+  assert.match(page, /redline_landing_quick/);
+  assert.match(page, /max\.ru\/u\/f9LHodD0cOI79gw/);
+  assert.match(page, /team@redline-school\.ru/);
+  assert.match(css, /\.marker::after\s*{\s*display: none;/);
   assert.match(route, /GOOGLE_SCRIPT_URL/);
   assert.match(route, /digits\.length < 10/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
@@ -128,6 +134,10 @@ test("keeps the generated campaign assets and production form wiring", async () 
   for (const path of [
     "../public/hero-community-v3.webp",
     "../public/product-pair-v3.webp",
+    "../public/product-olympiad-v1.webp",
+    "../public/product-transfer-v1.webp",
+    "../public/product-oge-v1.webp",
+    "../public/product-vpr-v1.webp",
     "../public/tutor-1-v4.jpg",
     "../public/tutor-2-v4.jpg",
     "../public/tutor-3-v4.jpg",

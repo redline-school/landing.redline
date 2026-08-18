@@ -3707,3 +3707,256 @@ summary:focus-visible {
     font-size: 13px;
   }
 }
+
+/* Product visuals and contact paths */
+.product-card > :not(.product-people) {
+  position: relative;
+  z-index: 2;
+}
+
+.product-card:not(.primary) {
+  min-height: 440px;
+  padding-right: 42%;
+}
+
+.product-card:not(.primary) > p,
+.product-card:not(.primary) > strong {
+  max-width: 68%;
+}
+
+.product-card:not(.primary) .product-people {
+  right: -35px;
+  bottom: -52px;
+  width: 310px;
+  height: 360px;
+}
+
+.contact-options {
+  margin-top: 17px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) repeat(3, auto);
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+}
+
+.contact-options > div {
+  display: grid;
+  gap: 4px;
+}
+
+.contact-options span {
+  color: var(--red);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contact-options strong {
+  font-size: 12px;
+}
+
+.contact-options > a {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.faq-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.faq-intro > p {
+  margin-bottom: 6px !important;
+}
+
+.quick-lead-card {
+  grid-template-columns: 0.78fr 1.22fr;
+}
+
+.quick-form-step legend {
+  margin-bottom: 14px;
+}
+
+.quick-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.quick-form-grid label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.quick-form-grid label > span {
+  padding-left: 3px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.quick-form-grid input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fbf9f7;
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+}
+
+.quick-form-grid input:focus {
+  border-color: var(--red);
+  outline: 3px solid rgba(235, 30, 47, 0.12);
+}
+
+.quick-consent {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.quick-consent a,
+.form-help-links a {
+  color: var(--red);
+  text-decoration: underline;
+}
+
+.form-help-links {
+  margin-left: 8px;
+  display: inline-flex;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .contact-options {
+    grid-template-columns: 1fr repeat(3, auto);
+  }
+
+  .product-card:not(.primary) {
+    padding-right: 40%;
+  }
+}
+
+@media (max-width: 620px) {
+  .marker {
+    white-space: normal;
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+    text-decoration-skip-ink: none;
+  }
+
+  .marker::after {
+    display: none;
+  }
+
+  .marker-red {
+    text-decoration-color: var(--red);
+  }
+
+  .marker-yellow {
+    text-decoration-color: var(--yellow);
+  }
+
+  .product-card,
+  .product-card.primary,
+  .product-card.dark,
+  .product-card.light,
+  .product-card.exam,
+  .product-card.seasonal,
+  .product-card:not(.primary) {
+    min-height: 610px;
+    padding: 25px 25px 300px;
+  }
+
+  .product-card > p,
+  .product-card > strong,
+  .product-card:not(.primary) > p,
+  .product-card:not(.primary) > strong {
+    max-width: 100%;
+  }
+
+  .product-card .product-people,
+  .product-card:not(.primary) .product-people {
+    right: 50%;
+    bottom: -38px;
+    width: 315px;
+    height: 330px;
+    transform: translateX(50%);
+  }
+
+  .phone-stage {
+    min-height: 800px;
+  }
+
+  .phone-copy {
+    max-width: none;
+  }
+
+  .phone-frame {
+    top: 245px;
+    right: 50%;
+    bottom: auto;
+    width: 270px;
+    height: 720px;
+    transform: translateX(50%);
+  }
+
+  .phone-stage:hover .phone-frame {
+    transform: translateX(50%);
+  }
+
+  .contact-options {
+    padding: 16px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .contact-options > div {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
+  .contact-options > a:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .lead-dialog .quick-lead-card {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-form-grid .submit-button {
+    width: 100%;
+    min-height: 56px;
+  }
+
+  .form-help-links {
+    margin: 8px 0 0;
+    display: flex;
+  }
+}
