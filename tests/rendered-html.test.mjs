@@ -48,6 +48,9 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.doesNotMatch(html, /изменены для конфиденциальности|типовые отзывы|не вымышленные отзывы/i);
   assert.match(html, /redline-favicon-20260818\.ico/);
   assert.match(html, /rel="canonical" href="https:\/\/landing\.redline-tutors\.ru\/"/);
+  assert.match(html, /mc\.yandex\.ru\/metrika\/tag\.js\?id=111761842/);
+  assert.match(html, /ym\(111761842, 'init'/);
+  assert.match(html, /mc\.yandex\.ru\/watch\/111761842/);
 });
 
 test("renders local offer and privacy pages", async () => {
@@ -61,9 +64,12 @@ test("renders local offer and privacy pages", async () => {
   assert.equal(privacyResponse.status, 200);
   const offerHtml = await offerResponse.text();
   assert.match(offerHtml, /Публичная оферта/i);
+  assert.match(offerHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=111761842/);
   assert.match(offerHtml, /от 900 \(девятисот\) рублей/i);
   assert.doesNotMatch(offerHtml, /1 200|двухсот/i);
-  assert.match(await privacyResponse.text(), /Политика обработки персональных данных/i);
+  const privacyHtml = await privacyResponse.text();
+  assert.match(privacyHtml, /Политика обработки персональных данных/i);
+  assert.match(privacyHtml, /mc\.yandex\.ru\/metrika\/tag\.js\?id=111761842/);
 });
 
 test("lead endpoint rejects incomplete requests before contacting the CRM", async () => {
