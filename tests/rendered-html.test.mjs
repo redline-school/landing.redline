@@ -139,6 +139,11 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(page, /redline_landing_quick/);
   assert.match(page, /max\.ru\/u\/f9LHodD0cOI79gw/);
   assert.match(page, /team@redline-school\.ru/);
+  const assignedPortraits = [
+    ...[...page.matchAll(/portraitIndex:\s*(\d+)/g)].map((match) => Number(match[1])),
+    ...[...page.matchAll(/tutorPhoto\((\d+)\)/g)].map((match) => Number(match[1])),
+  ].sort((left, right) => left - right);
+  assert.deepEqual(assignedPortraits, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.match(css, /\.marker::after\s*{\s*display: none;/);
   assert.match(route, /GOOGLE_SCRIPT_URL/);
   assert.match(route, /digits\.length < 10/);
@@ -161,6 +166,7 @@ test("keeps the generated campaign assets and production form wiring", async () 
     "../public/real-tutor-07.webp",
     "../public/real-tutor-08.webp",
     "../public/real-tutor-09.webp",
+    "../public/real-tutor-10.webp",
     "../public/case-student-1-v4.jpg",
     "../public/case-student-2-v4.jpg",
     "../public/case-student-3-v4.jpg",
