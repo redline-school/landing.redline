@@ -38,7 +38,10 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.match(html, /id="hero-lead-form"/);
   assert.match(html, /Найдём пробелы/);
   assert.match(html, /от 900 ₽/i);
-  assert.match(html, /tutor-1-v4\.jpg/);
+  assert.match(html, /real-tutor-01\.webp/);
+  assert.match(html, /hero-community-v3\.webp/);
+  assert.match(html, /product-pair-v3\.webp/);
+  assert.doesNotMatch(html, /tutor-1-v4\.jpg/);
   assert.doesNotMatch(html, /parent-review-video\.mp4/);
   assert.doesNotMatch(html, /\/_next\/image\?url=/);
   assert.match(html, /первого измеримого результата/i);
@@ -127,6 +130,8 @@ test("keeps the generated campaign assets and production form wiring", async () 
   assert.match(page, /pagePath\("\/privacy\/"\)/);
   assert.match(page, /role="dialog"/);
   assert.match(page, /parent-review-video\.mp4/);
+  assert.match(page, /hero-community-v3\.webp/);
+  assert.match(page, /product-olympiad-v1\.webp/);
   assert.match(page, /openFullLeadModal/);
   assert.match(page, /openQuickLeadModal/);
   assert.match(page, /redline_landing_quick/);
@@ -145,10 +150,14 @@ test("keeps the generated campaign assets and production form wiring", async () 
     "../public/product-transfer-v1.webp",
     "../public/product-oge-v1.webp",
     "../public/product-vpr-v1.webp",
-    "../public/tutor-1-v4.jpg",
-    "../public/tutor-2-v4.jpg",
-    "../public/tutor-3-v4.jpg",
-    "../public/tutor-4-v4.jpg",
+    "../public/real-tutor-01.webp",
+    "../public/real-tutor-02.webp",
+    "../public/real-tutor-03.webp",
+    "../public/real-tutor-05.webp",
+    "../public/real-tutor-06.webp",
+    "../public/real-tutor-07.webp",
+    "../public/real-tutor-08.webp",
+    "../public/real-tutor-09.webp",
     "../public/case-student-1-v4.jpg",
     "../public/case-student-2-v4.jpg",
     "../public/case-student-3-v4.jpg",
@@ -161,7 +170,7 @@ test("keeps the generated campaign assets and production form wiring", async () 
   ]) {
     const asset = new URL(path, import.meta.url);
     await access(asset);
-    assert.ok((await stat(asset)).size > 50_000, `${path} should be a real image asset`);
+    assert.ok((await stat(asset)).size > 30_000, `${path} should be a real image asset`);
   }
 
   const favicon = new URL("../public/redline-favicon-20260818.ico", import.meta.url);

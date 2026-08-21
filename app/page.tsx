@@ -4,10 +4,10 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const ASSET_VERSION = "20260818-3";
+const ASSET_VERSION = "20260821-1";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
 const pagePath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
-const tutorPhoto = (index: number) => assetPath(`/tutor-${index}-v4.jpg`);
+const tutorPhoto = (index: number) => assetPath(`/real-tutor-${String(index).padStart(2, "0")}.webp`);
 
 const goals = [
   "Повысить успеваемость",
@@ -507,7 +507,7 @@ export default function Home() {
               {[1, 2, 3].map((portrait, index) => {
                 const titles = ["Находим опору", "Тренируем навык", "Фиксируем результат"];
                 const texts = ["Разбираемся, где именно ломается логика, и объясняем базовый шаг.", "Пробуем несколько заданий и учим ребёнка замечать нужный способ.", "Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт."];
-                return <article key={portrait}><Image className="step-portrait" src={tutorPhoto(portrait)} alt="Молодой преподаватель REDLINE" width={520} height={650} sizes="(max-width: 620px) 86px, 190px" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
+                return <article key={portrait}><Image className="step-portrait" src={tutorPhoto(portrait)} alt="Репетитор REDLINE" width={520} height={650} sizes="(max-width: 620px) 86px, 190px" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
               })}
             </div>
           </div>
@@ -545,7 +545,7 @@ export default function Home() {
             <div className="diagnostic-grid">
               {diagnosticStages.map((stage) => (
                 <article key={stage.number}>
-                  <div className="diagnostic-person"><Image src={tutorPhoto(stage.portraitIndex)} alt="Молодой преподаватель REDLINE" fill sizes="(max-width: 620px) 118px, 22vw" /></div>
+                  <div className="diagnostic-person"><Image src={tutorPhoto(stage.portraitIndex + 4)} alt="Репетитор REDLINE" fill sizes="(max-width: 620px) 118px, 22vw" /></div>
                   <span>{stage.number}</span><h3>{stage.title}</h3><p>{stage.text}</p>
                 </article>
               ))}
@@ -576,7 +576,7 @@ export default function Home() {
           <div className="container reports-shell" data-reveal>
             <div className="report-visual">
               <Image src={assetPath("/parent-report-chat.webp")} alt="Пример постоянного отчёта родителю после занятия" width={1208} height={856} />
-              <div className="report-avatar"><Image src={tutorPhoto(4)} alt="" width={56} height={56} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
+              <div className="report-avatar"><Image src={tutorPhoto(9)} alt="" width={56} height={56} /><span><strong>Отчёт после занятия</strong>без просьб и напоминаний</span></div>
             </div>
             <div className="report-copy">
               <p className="section-kicker">Постоянная обратная связь</p>
