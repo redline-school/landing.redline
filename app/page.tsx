@@ -666,8 +666,10 @@ export default function Home() {
                 <div className="tutor-voice-copy"><small>Преподаватель REDLINE</small><blockquote>«{tutor.quote}»</blockquote></div>
               </article>)}
             </div>
-            <div className="tutor-principles" aria-label="Принципы отбора преподавателей"><span>Знают школьную программу</span><span>Объясняют без давления</span><span>Держат контакт</span><span>Отчитываются родителю</span></div>
-            <button className="button tutor-cta" type="button" onClick={openQuickLeadModal}>Познакомиться на диагностике →</button>
+            <div className="tutor-closing">
+              <div><small>Общее для всей команды</small><strong>Объясняем без давления, работаем по школьной программе и показываем родителю прогресс.</strong></div>
+              <button className="button button-light tutor-cta" type="button" onClick={openQuickLeadModal}>Познакомиться на диагностике →</button>
+            </div>
           </div>
         </section>
 
