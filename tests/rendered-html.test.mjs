@@ -45,6 +45,8 @@ test("server-renders the REDLINE landing page with the core offer", async () => 
   assert.doesNotMatch(html, /parent-review-video\.mp4/);
   assert.doesNotMatch(html, /\/_next\/image\?url=/);
   assert.match(html, /первого измеримого результата/i);
+  assert.match(html, /Один преподаватель · все 3 занятия/i);
+  assert.match(html, /Некоторые из наших/);
   assert.doesNotMatch(html, /С 1 сентября|31 августа/i);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
   assert.doesNotMatch(html, /href="#lead-form"/);

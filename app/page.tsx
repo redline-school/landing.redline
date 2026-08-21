@@ -99,6 +99,44 @@ const caseStudies = [
   },
 ];
 
+const resultSteps = [
+  {
+    title: "Находим опору",
+    text: "Разбираемся, где именно ломается логика, и объясняем базовый шаг.",
+  },
+  {
+    title: "Тренируем навык",
+    text: "Пробуем несколько заданий и учим ребёнка замечать нужный способ.",
+  },
+  {
+    title: "Фиксируем результат",
+    text: "Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт.",
+  },
+];
+
+const tutorProfiles = [
+  {
+    portraitIndex: 1,
+    principle: "Поддержать уверенность",
+    quote: "Сначала помогаю ребёнку перестать бояться ошибки. Когда он спокойно рассуждает вслух, становится понятно, где нужна опора.",
+  },
+  {
+    portraitIndex: 4,
+    principle: "Научить думать самостоятельно",
+    quote: "Не даю готовый ответ. Задаю вопросы так, чтобы ученик сам дошёл до решения и смог повторить этот путь без меня.",
+  },
+  {
+    portraitIndex: 6,
+    principle: "Связать тему со школой",
+    quote: "Новую тему связываю с учебником и тем, что ребёнок уже знает. Так материал не превращается в набор отдельных правил.",
+  },
+  {
+    portraitIndex: 8,
+    principle: "Показывать движение",
+    quote: "В конце занятия фиксируем маленький результат и следующий шаг. Ребёнок видит, что уже получилось, а родитель понимает маршрут.",
+  },
+];
+
 const diagnosticStages = [
   {
     number: "01",
@@ -503,12 +541,15 @@ export default function Home() {
               <p>Выбираем одну понятную цель и показываем движение по ней ребёнку и родителю.</p>
               <button className="button button-light" type="button" onClick={openQuickLeadModal}>Выбрать первую цель →</button>
             </div>
-            <div className="result-steps">
-              {[1, 2, 3].map((portrait, index) => {
-                const titles = ["Находим опору", "Тренируем навык", "Фиксируем результат"];
-                const texts = ["Разбираемся, где именно ломается логика, и объясняем базовый шаг.", "Пробуем несколько заданий и учим ребёнка замечать нужный способ.", "Ребёнок делает целевой шаг самостоятельно, а родитель получает отчёт."];
-                return <article key={portrait}><Image className="step-portrait" src={tutorPhoto(portrait)} alt="Репетитор REDLINE" width={520} height={650} sizes="(max-width: 620px) 86px, 190px" /><span>Занятие {index + 1}</span><h3>{titles[index]}</h3><p>{texts[index]}</p></article>;
-              })}
+            <div className="result-journey">
+              <article className="result-lead-tutor">
+                <Image src={tutorPhoto(7)} alt="Постоянный преподаватель REDLINE" fill sizes="(max-width: 620px) 92vw, 22vw" />
+                <span className="result-tutor-badge">Один преподаватель · все 3 занятия</span>
+                <div className="result-tutor-copy"><strong>Рядом от первой сложности до результата</strong><p>Репетитор знает точку старта ребёнка и продолжает с неё на каждом занятии.</p></div>
+              </article>
+              <div className="result-steps" aria-label="Путь к первому результату за три занятия">
+                {resultSteps.map((step, index) => <article key={step.title}><span>0{index + 1}</span><div><small>Занятие {index + 1}</small><h3>{step.title}</h3><p>{step.text}</p></div></article>)}
+              </div>
             </div>
           </div>
         </section>
@@ -616,15 +657,16 @@ export default function Home() {
         <section className="section tutor-section" id="tutors">
           <div className="container" data-reveal>
             <div className="section-heading heading-row">
-              <div><p className="section-kicker">Молодая команда · строгий отбор</p><h2>Подбираем преподавателя <span className="marker marker-red">под ребёнка</span></h2></div>
-              <p>На диагностике вы знакомитесь именно с будущим преподавателем и проверяете, подходит ли ребёнку его темп и способ объяснения.</p>
+              <div><p className="section-kicker">Молодая команда · строгий отбор</p><h2>Некоторые из наших <span className="marker marker-red">репетиторов</span></h2></div>
+              <p>У каждого свой характер и способ объяснения, но общий принцип один: услышать ребёнка, научить рассуждать и сделать прогресс видимым.</p>
             </div>
-            <div className="tutor-criteria">
-              <article><span>01</span><h3>Знает школьную программу</h3><p>Работает по учебнику ученика, закрывает пробелы и помогает двигаться на опережение.</p></article>
-              <article><span>02</span><h3>Объясняет без давления</h3><p>Разбирает ход мысли, задаёт вопросы и помогает ребёнку не бояться ошибок.</p></article>
-              <article><span>03</span><h3>Умеет держать контакт</h3><p>Молодой преподаватель общается на понятном языке, сохраняя структуру и рабочий темп.</p></article>
-              <article><span>04</span><h3>Регулярно отчитывается</h3><p>После занятия фиксирует результат, трудности и следующий шаг для родителя.</p></article>
+            <div className="tutor-voices" aria-label="Некоторые преподаватели REDLINE">
+              {tutorProfiles.map((tutor) => <article className="tutor-voice-card" key={tutor.portraitIndex}>
+                <div className="tutor-voice-photo"><Image src={tutorPhoto(tutor.portraitIndex)} alt="Преподаватель REDLINE" fill sizes="(max-width: 620px) 78vw, 25vw" /><span>{tutor.principle}</span></div>
+                <div className="tutor-voice-copy"><small>Преподаватель REDLINE</small><blockquote>«{tutor.quote}»</blockquote></div>
+              </article>)}
             </div>
+            <div className="tutor-principles" aria-label="Принципы отбора преподавателей"><span>Знают школьную программу</span><span>Объясняют без давления</span><span>Держат контакт</span><span>Отчитываются родителю</span></div>
             <button className="button tutor-cta" type="button" onClick={openQuickLeadModal}>Познакомиться на диагностике →</button>
           </div>
         </section>
