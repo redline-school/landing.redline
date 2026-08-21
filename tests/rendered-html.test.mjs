@@ -153,6 +153,7 @@ test("keeps the generated campaign assets and production form wiring", async () 
     "../public/real-tutor-01.webp",
     "../public/real-tutor-02.webp",
     "../public/real-tutor-03.webp",
+    "../public/real-tutor-04.webp",
     "../public/real-tutor-05.webp",
     "../public/real-tutor-06.webp",
     "../public/real-tutor-07.webp",

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 const PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const ASSET_VERSION = "20260821-1";
+const ASSET_VERSION = "20260821-2";
 const assetPath = (path: string) => `${PUBLIC_BASE_PATH}${path}?v=${ASSET_VERSION}`;
 const pagePath = (path: string) => `${PUBLIC_BASE_PATH}${path}`;
 const tutorPhoto = (index: number) => assetPath(`/real-tutor-${String(index).padStart(2, "0")}.webp`);
@@ -104,25 +104,25 @@ const diagnosticStages = [
     number: "01",
     title: "Знакомимся",
     text: "Будущий преподаватель узнаёт цель, школьную программу и то, где ребёнок теряется.",
-    portraitIndex: 1,
+    portraitIndex: 4,
   },
   {
     number: "02",
     title: "Находим точку сбоя",
     text: "Не ставим общую оценку — определяем конкретные темы и навыки, которые мешают двигаться дальше.",
-    portraitIndex: 2,
+    portraitIndex: 6,
   },
   {
     number: "03",
     title: "Проводим мини-урок",
     text: "Ребёнок пробует объяснение преподавателя и сразу понимает, комфортно ли заниматься вместе.",
-    portraitIndex: 3,
+    portraitIndex: 7,
   },
   {
     number: "04",
     title: "Отдаём маршрут",
     text: "Родитель получает список пробелов, сильных сторон и план — даже если решит не продолжать.",
-    portraitIndex: 4,
+    portraitIndex: 8,
   },
 ];
 
@@ -545,7 +545,7 @@ export default function Home() {
             <div className="diagnostic-grid">
               {diagnosticStages.map((stage) => (
                 <article key={stage.number}>
-                  <div className="diagnostic-person"><Image src={tutorPhoto(stage.portraitIndex + 4)} alt="Репетитор REDLINE" fill sizes="(max-width: 620px) 118px, 22vw" /></div>
+                  <div className="diagnostic-person"><Image src={tutorPhoto(stage.portraitIndex)} alt="Репетитор REDLINE" fill sizes="(max-width: 620px) 118px, 22vw" /></div>
                   <span>{stage.number}</span><h3>{stage.title}</h3><p>{stage.text}</p>
                 </article>
               ))}
